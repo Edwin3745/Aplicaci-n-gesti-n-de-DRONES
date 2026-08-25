@@ -126,6 +126,7 @@ CREATE TABLE mision (
     id          SERIAL       PRIMARY KEY,
     nombre      VARCHAR(120) NOT NULL,
     descripcion TEXT,
+    ubicacion   VARCHAR(200),
     fecha       DATE         NOT NULL DEFAULT CURRENT_DATE
 );
 

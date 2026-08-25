@@ -11,7 +11,8 @@ public class Mision {
     private String nombre;
     private String ubicacion;
     private Date fecha;
-
+    /** Descripcion de la mision. */
+    private String descripcion;
     // Composición: la Misión es el "todo", los Drones son las "partes".
     // Se inicializa siempre (nunca null) para evitar NullPointerException.
     private final List<Dron> drones = new ArrayList<>();
@@ -38,6 +39,13 @@ public class Mision {
     public Date getFecha() { return fecha; }
     public void setFecha(Date fecha) { this.fecha = fecha; }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
     // --- Gestión de la composición Mision -> Dron ---
 
     /**
