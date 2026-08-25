@@ -1,0 +1,17 @@
+2026-08-19T17:27:28.950Z [INFO] ----------------------invoke appmod-redirect-to-upgrade-agent----------------------
+2026-08-19T17:27:28.951Z [INFO] [Tool.invoke]({name: appmod-redirect-to-upgrade-agent, modelId: auto, input: {
+  "originalPrompt": "upgrade java runtime to the latest LTS version in auto-execution mode.",
+  "projectPath": "c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones"
+}}).
+2026-08-19T17:27:28.951Z [INFO] [Tool.invoke] do invoke.
+2026-08-19T17:27:28.951Z [INFO] [RedirectToUpgradeAgentTool] Redirecting to custom agent "modernize-java-upgrade" with prompt: upgrade java runtime to the latest LTS version in auto-execution mode.
+2026-08-19T17:27:29.022Z [INFO] [RedirectToUpgradeAgentTool] Redirected to custom agent "modernize-java-upgrade". User MUST switch to the new agent to continue.
+2026-08-19T17:27:29.023Z [INFO] [Tool.invoke]({result: {
+  "message": "The upgrade request has been redirected to the \"modernize-java-upgrade\" agent in a new chat session. You MUST! stop processing in this session.",
+  "result": {
+    "redirected": true,
+    "agentName": "modernize-java-upgrade",
+    "prompt": "upgrade java runtime to the latest LTS version in auto-execution mode."
+  }
+}}).
+2026-08-19T17:27:29.023Z [INFO] ----------------------invoked appmod-redirect-to-upgrade-agent----------------------

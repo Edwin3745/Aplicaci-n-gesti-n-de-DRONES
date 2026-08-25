@@ -1,0 +1,9 @@
+# Variables de entorno (contraseñas, credenciales)
+.env
+
+# Carpeta de compilación de Maven
+target/
+
+# Archivos de configuración del IDE
+.vscode/
+

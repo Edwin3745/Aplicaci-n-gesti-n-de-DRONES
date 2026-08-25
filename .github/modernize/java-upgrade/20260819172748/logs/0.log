@@ -1,0 +1,94 @@
+2026-08-19T17:27:48.244Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-08-19T17:27:48.244Z [INFO] [Tool.invoke]({name: appmod-report-event, modelId: auto, input: {
+  "projectPath": "c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones",
+  "event": "precheckCompleted",
+  "status": "succeeded",
+  "phase": "precheck",
+  "details": {
+    "components": [
+      {
+        "name": "jdk",
+        "baseVersion": "17",
+        "targetVersion": "25"
+      }
+    ]
+  }
+}}).
+2026-08-19T17:27:48.244Z [INFO] [Tool.invoke] do invoke.
+2026-08-19T17:27:48.246Z [INFO] Project c:\Users\Casa\OneDrive\Documentos\gestiondrones is a maven project, try to get java version from pom.xml
+2026-08-19T17:27:48.248Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'precheckCompleted' reported!\nSession ID: 20260819172748,\nSession Dir: c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones\\.github\\modernize\\java-upgrade\\20260819172748"
+}}).
+2026-08-19T17:27:48.253Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-08-19T17:27:48.255Z [INFO] Project java version: 17
+2026-08-19T17:27:48.256Z [INFO] Maven project detected.
+2026-08-19T17:27:48.256Z [INFO] Build tool type: mvn
+2026-08-19T17:27:48.348Z [INFO] JDK: undefined
+2026-08-19T17:27:48.348Z [ERROR] Failed to detect or resolve JDK for the project at c:\Users\Casa\OneDrive\Documentos\gestiondrones.
+2026-08-19T17:27:48.348Z [WARN] [ReportEventTool] Full project info unavailable, attempting lightweight fallback: UserError: Failed to detect or resolve JDK for the project at c:\Users\Casa\OneDrive\Documentos\gestiondrones. Please ensure JDK 17 is installed and properly configured on the machine.
+2026-08-19T17:27:48.350Z [INFO] Maven project detected.
+2026-08-19T17:27:48.351Z [INFO] Project c:\Users\Casa\OneDrive\Documentos\gestiondrones is a maven project, try to get java version from pom.xml
+2026-08-19T17:27:54.216Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-08-19T17:27:54.217Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "sessionId": "20260819172748",
+  "projectPath": "c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones",
+  "event": "planGenerationStarted",
+  "status": "succeeded",
+  "phase": "plan"
+}}).
+2026-08-19T17:27:54.217Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-08-19T17:27:54.218Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-08-19T17:27:54.218Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-08-19T17:27:54.261Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-08-19T17:27:54.261Z [INFO] [Tool.invoke]({name: appmod-report-event, modelId: auto, input: {
+  "sessionId": "20260819172748",
+  "projectPath": "c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones",
+  "event": "planGenerationStarted",
+  "status": "succeeded",
+  "phase": "plan"
+}}).
+2026-08-19T17:27:54.262Z [INFO] [Tool.invoke] do invoke.
+2026-08-19T17:27:54.263Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planGenerationStarted' reported!\nSession ID: 20260819172748,\nSession Dir: c:\\Users\\Casa\\OneDrive\\Documentos\\gestiondrones\\.github\\modernize\\java-upgrade\\20260819172748"
+}}).
+2026-08-19T17:27:54.263Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-08-19T17:27:54.565Z [INFO] ---------------------prepare appmod-list-jdks----------------------
+2026-08-19T17:27:54.567Z [INFO] [Tool.prepareInvocation]({name: appmod-list-jdks, input: {
+  "sessionId": "20260819172748"
+}}).
+2026-08-19T17:27:54.567Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-08-19T17:27:54.568Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List jdks"
+}}).
+2026-08-19T17:27:54.568Z [INFO] ----------------------prepared appmod-list-jdks----------------------
+2026-08-19T17:27:54.666Z [INFO] ----------------------invoke appmod-list-jdks----------------------
+2026-08-19T17:27:54.667Z [INFO] [Tool.invoke]({name: appmod-list-jdks, modelId: auto, input: {
+  "sessionId": "20260819172748"
+}}).
+2026-08-19T17:27:54.667Z [INFO] [Tool.invoke] do invoke.
+2026-08-19T17:27:54.690Z [INFO] [Tool.invoke]({result: {
+  "message": "We found following jdks in your system:\n\n1. Java 21.0.8\n   📁 Path: C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8.9-hotspot\\bin\n   🏷️ Source: PATH\n\nTotal: 1 JDK installation(s) found"
+}}).
+2026-08-19T17:27:54.690Z [INFO] ----------------------invoked appmod-list-jdks----------------------
+2026-08-19T17:27:54.706Z [INFO] ---------------------prepare appmod-list-mavens----------------------
+2026-08-19T17:27:54.706Z [INFO] [Tool.prepareInvocation]({name: appmod-list-mavens, input: {
+  "sessionId": "20260819172748",
+  "includeVersion": true
+}}).
+2026-08-19T17:27:54.707Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-08-19T17:27:54.707Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List mavens"
+}}).
+2026-08-19T17:27:54.708Z [INFO] ----------------------prepared appmod-list-mavens----------------------
+2026-08-19T17:27:54.750Z [INFO] ----------------------invoke appmod-list-mavens----------------------
+2026-08-19T17:27:54.750Z [INFO] [Tool.invoke]({name: appmod-list-mavens, modelId: auto, input: {
+  "sessionId": "20260819172748",
+  "includeVersion": true
+}}).
+2026-08-19T17:27:54.754Z [INFO] [Tool.invoke] do invoke.
+2026-08-19T17:27:54.764Z [INFO] [Tool.invoke]({result: {
+  "message": "No Maven installations found."
+}}).
+2026-08-19T17:27:54.764Z [INFO] ----------------------invoked appmod-list-mavens----------------------

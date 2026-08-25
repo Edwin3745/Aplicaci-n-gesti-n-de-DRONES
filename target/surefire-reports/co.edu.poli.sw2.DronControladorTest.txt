@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------
+Test set: co.edu.poli.sw2.DronControladorTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.443 s <<< FAILURE! -- in co.edu.poli.sw2.DronControladorTest
+co.edu.poli.sw2.DronControladorTest.testRegistrarYBuscarDron -- Time elapsed: 0.423 s <<< ERROR!
+java.lang.RuntimeException: Error al guardar el dron
+	at co.edu.poli.sw2.Servicio.DronDAOImpl.guardar(DronDAOImpl.java:42)
+	at co.edu.poli.sw2.Servicio.DronDAOImpl.guardar(DronDAOImpl.java:19)
+	at co.edu.poli.sw2.Controlador.DronControlador.registrarDron(DronControlador.java:42)
+	at co.edu.poli.sw2.DronControladorTest.testRegistrarYBuscarDron(DronControladorTest.java:15)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.postgresql.util.PSQLException: ERROR: llave duplicada viola restricción de unicidad «dron_pkey»
+  Detail: Ya existe la llave (id)=(1).
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2993)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2656)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:446)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:533)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:449)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:197)
+	at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:158)
+	at co.edu.poli.sw2.Servicio.DronDAOImpl.guardar(DronDAOImpl.java:39)
+	... 6 more
+
