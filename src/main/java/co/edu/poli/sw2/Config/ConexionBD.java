@@ -27,7 +27,6 @@ public class ConexionBD {
         String url = props.getProperty("db.url");
         String user = props.getProperty("db.user");
         String password = props.getProperty("db.password");
-        System.out.println("Conectando a la base de datos con URL: " + url);
         return DriverManager.getConnection(url, user, password);
     }
 }

@@ -1,45 +1,63 @@
 package co.edu.poli.sw2.Servicio;
 
 import co.edu.poli.sw2.Config.ConexionBD;
+import co.edu.poli.sw2.Modelo.Agricultura;
 import co.edu.poli.sw2.Modelo.Dron;
+import co.edu.poli.sw2.Modelo.TipoDron;
+import co.edu.poli.sw2.Modelo.Vigilancia;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementación JDBC de la interfaz {@link GenericDAO} para la entidad {@link Dron}.
+ * Implementación JDBC de {@link GenericDAO} para la jerarquía {@link Dron}.
  *
- * Esta clase forma parte de la capa de servicio dentro del patrón MVC y se encarga
- * de persistir los datos de los drones en una base de datos PostgreSQL. Su objetivo
- * es encapsular todas las consultas SQL necesarias para guardar, consultar,
- * actualizar y eliminar instancias de {@link Dron} sin que la lógica del controlador
- * conozca los detalles de la base de datos.
+ * <p>La herencia se persiste con la estrategia de tabla única con columna
+ * discriminadora: todos los subtipos comparten la tabla {@code dron} y la
+ * columna {@code tipo} indica de qué subclase es cada fila. Los atributos
+ * propios de un subtipo quedan en NULL en las filas de los demás.</p>
  */
 public class DronDAOImpl implements GenericDAO<Dron, Integer> {
 
+    /** Columnas comunes a todos los subtipos, en el orden en que se leen y escriben. */
+    private static final String COLUMNAS =
+            "id, tipo, serial, modelo, fabricante, peso, capacidad_tanque, deteccion_termica";
+
     /**
-     * Guarda un nuevo dron en la base de datos.
+     * Guarda un nuevo dron.
      *
-     * @param dron instancia de {@link Dron} a registrar.
+     * <p>El identificador lo genera la base de datos (columna SERIAL), por lo
+     * que no se envía en la sentencia y se recupera después para asignarlo al
+     * objeto recibido.</p>
+     *
+     * @param dron dron a registrar.
      */
     @Override
     public void guardar(Dron dron) {
-        // TODO PASO 3: falta la columna 'tipo' y los atributos específicos
-        // (capacidad_tanque, deteccion_termica). El id ahora es SERIAL: lo genera
-        // PostgreSQL y debe recuperarse con getGeneratedKeys().
-        String sql = "INSERT INTO dron (id, serial, modelo, fabricante, peso) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dron (tipo, serial, modelo, fabricante, peso, "
+                   + "capacidad_tanque, deteccion_termica) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, dron.getId());
+            // El tipo lo declara el propio objeto: no hace falta inspeccionar su clase.
+            ps.setString(1, dron.getTipo().getCodigo());
             ps.setString(2, dron.getSerial());
             ps.setString(3, dron.getModelo());
             ps.setString(4, dron.getFabricante());
             ps.setDouble(5, dron.getPeso());
 
+            asignarAtributosEspecificos(ps, dron, 6, 7);
+
             ps.executeUpdate();
+
+            // Se recupera el id generado por la base y se refleja en el objeto.
+            try (ResultSet claves = ps.getGeneratedKeys()) {
+                if (claves.next()) {
+                    dron.setId(claves.getInt(1));
+                }
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al guardar el dron", e);
@@ -47,10 +65,10 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     }
 
     /**
-     * Elimina un dron identificado por su ID.
+     * Elimina un dron por su identificador.
      *
-     * @param id identificador del dron a eliminar.
-     * @return {@code true} si se eliminó el registro; {@code false} en caso contrario.
+     * @param id identificador del dron.
+     * @return {@code true} si se eliminó alguna fila.
      */
     @Override
     public boolean eliminar(Integer id) {
@@ -71,11 +89,11 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
      * Busca un dron por su identificador.
      *
      * @param id identificador del dron.
-     * @return instancia de {@link Dron} encontrada o {@code null} si no existe.
+     * @return el dron encontrado, o {@code null} si no existe.
      */
     @Override
     public Dron buscarPorId(Integer id) {
-        String sql = "SELECT * FROM dron WHERE id = ?";
+        String sql = "SELECT " + COLUMNAS + " FROM dron WHERE id = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -96,14 +114,14 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     }
 
     /**
-     * Obtiene la lista completa de drones registrados en la base de datos.
+     * Obtiene todos los drones registrados.
      *
-     * @return colección con todos los drones almacenados.
+     * @return lista con todos los drones, vacía si no hay ninguno.
      */
     @Override
     public List<Dron> listarTodos() {
         List<Dron> drones = new ArrayList<>();
-        String sql = "SELECT * FROM dron ORDER BY id";
+        String sql = "SELECT " + COLUMNAS + " FROM dron ORDER BY id";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -121,23 +139,31 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     }
 
     /**
-     * Actualiza la información de un dron existente.
+     * Actualiza un dron existente.
      *
-     * @param dron objeto {@link Dron} con los datos actualizados.
-     * @return {@code true} si la actualización fue exitosa; {@code false} si no se encontró el registro.
+     * <p>El tipo también se actualiza: si el dron cambió de subtipo, la fila
+     * debe reflejarlo junto con sus atributos específicos.</p>
+     *
+     * @param dron dron con los datos actualizados.
+     * @return {@code true} si se actualizó alguna fila.
      */
     @Override
     public boolean actualizar(Dron dron) {
-        String sql = "UPDATE dron SET serial = ?, modelo = ?, fabricante = ?, peso = ? WHERE id = ?";
+        String sql = "UPDATE dron SET tipo = ?, serial = ?, modelo = ?, fabricante = ?, "
+                   + "peso = ?, capacidad_tanque = ?, deteccion_termica = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, dron.getSerial());
-            ps.setString(2, dron.getModelo());
-            ps.setString(3, dron.getFabricante());
-            ps.setDouble(4, dron.getPeso());
-            ps.setInt(5, dron.getId());
+            ps.setString(1, dron.getTipo().getCodigo());
+            ps.setString(2, dron.getSerial());
+            ps.setString(3, dron.getModelo());
+            ps.setString(4, dron.getFabricante());
+            ps.setDouble(5, dron.getPeso());
+
+            asignarAtributosEspecificos(ps, dron, 6, 7);
+
+            ps.setInt(8, dron.getId());
 
             return ps.executeUpdate() > 0;
 
@@ -146,15 +172,72 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         }
     }
 
+    // ------------------------------------------------------------------
+    // Traducción entre la fila y el objeto
+    // ------------------------------------------------------------------
+
     /**
-     * Convierte un registro de base de datos en un objeto {@link Dron}.
+     * Escribe en la sentencia los atributos que solo existen en un subtipo.
      *
-     * @param rs resultado de la consulta SQL.
-     * @return instancia de {@link Dron} mapeada desde la fila actual.
-     * @throws SQLException si ocurre un error al leer los datos del ResultSet.
+     * <p>Es el único punto del DAO que necesita distinguir la subclase concreta.
+     * La columna que no corresponde al subtipo se marca explícitamente como NULL,
+     * tal como exige la restricción de coherencia del esquema.</p>
+     *
+     * @param ps            sentencia en preparación.
+     * @param dron          dron cuyos datos se están escribiendo.
+     * @param posTanque     posición del parámetro de capacidad_tanque.
+     * @param posTermica    posición del parámetro de deteccion_termica.
+     * @throws SQLException si falla la asignación de parámetros.
+     */
+    private void asignarAtributosEspecificos(PreparedStatement ps, Dron dron,
+                                             int posTanque, int posTermica) throws SQLException {
+
+        if (dron instanceof Agricultura agricultura) {
+            ps.setDouble(posTanque, agricultura.getCapacidadTanque());
+            ps.setNull(posTermica, Types.BOOLEAN);
+
+        } else if (dron instanceof Vigilancia vigilancia) {
+            ps.setNull(posTanque, Types.DOUBLE);
+            ps.setBoolean(posTermica, vigilancia.isDeteccionTermica());
+
+        } else {
+            throw new IllegalStateException(
+                    "Subtipo de dron no soportado por la persistencia: "
+                            + dron.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Convierte la fila actual del {@link ResultSet} en la subclase de
+     * {@link Dron} que corresponda.
+     *
+     * <p>La columna discriminadora determina qué construir; la construcción
+     * se delega en {@link DronFactory}, de modo que este DAO no instancia
+     * directamente ninguna subclase.</p>
+     *
+     * @param rs resultado posicionado en la fila a convertir.
+     * @return instancia de {@link Agricultura} o {@link Vigilancia}.
+     * @throws SQLException si falla la lectura de la fila.
      */
     private Dron mapearDron(ResultSet rs) throws SQLException {
-        // TODO PASO 3: leer la columna 'tipo' y construir Agricultura o Vigilancia.
-        throw new UnsupportedOperationException("Pendiente: mapeo con herencia (paso 3).");
+
+        TipoDron tipo = TipoDron.desdeCodigo(rs.getString("tipo"));
+
+        // getDouble y getBoolean devuelven 0 y false cuando la columna es NULL.
+        // Como la fábrica recibe ambos valores, se leen los dos y solo se usa
+        // el que corresponda al tipo: el otro se ignora dentro de la fábrica.
+        double capacidadTanque = rs.getDouble("capacidad_tanque");
+        boolean deteccionTermica = rs.getBoolean("deteccion_termica");
+
+        return DronFactory.crearDron(
+                tipo,
+                rs.getInt("id"),
+                rs.getString("serial"),
+                rs.getString("modelo"),
+                rs.getString("fabricante"),
+                rs.getDouble("peso"),
+                capacidadTanque,
+                deteccionTermica
+        );
     }
 }
