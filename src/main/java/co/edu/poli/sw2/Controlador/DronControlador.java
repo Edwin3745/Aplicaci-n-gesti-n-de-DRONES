@@ -1,8 +1,10 @@
 package co.edu.poli.sw2.Controlador;
 
 import co.edu.poli.sw2.Modelo.Dron;
-import co.edu.poli.sw2.Servicio.GenericDAO;
+import co.edu.poli.sw2.Modelo.TipoDron;
 import co.edu.poli.sw2.Servicio.DronDAOImpl;
+import co.edu.poli.sw2.Servicio.DronFactory;
+import co.edu.poli.sw2.Servicio.GenericDAO;
 
 import java.util.List;
 
@@ -13,8 +15,8 @@ import java.util.List;
  * <p>Esta clase actúa como intermediario entre la capa de vista y la capa de
  * acceso a datos. Su función principal es coordinar la creación, consulta,
  * actualización y eliminación de instancias de {@link Dron}, delegando la
- * persistencia en la implementación de {@link GenericDAO}.</p>
- *
+ * construcción en {@link DronFactory} y la persistencia en la implementación
+ * de {@link GenericDAO}.</p>
  */
 public class DronControlador {
 
@@ -25,9 +27,6 @@ public class DronControlador {
 
     /**
      * Construye un nuevo controlador de drones.
-     *
-     * <p>En este constructor se crea la implementación concreta del DAO que
-     * será utilizada para persistir y consultar los drones.</p>
      */
     public DronControlador() {
         this.dronDAO = new DronDAOImpl();
@@ -36,15 +35,34 @@ public class DronControlador {
     /**
      * Registra un nuevo dron en el sistema.
      *
+     * <p>El controlador no construye el dron directamente: delega esa decisión
+     * en {@link DronFactory}, que devuelve la subclase concreta según el tipo
+     * indicado.</p>
+     *
+     * @param tipo              subtipo de dron a registrar
+     * @param id                identificador del dron
+     * @param serial            número de serie
+     * @param modelo            modelo del dron
+     * @param fabricante        fabricante del dron
+     * @param peso              peso en kilogramos
+     * @param capacidadTanque   litros del tanque; solo aplica si el tipo es AGRICULTURA
+     * @param deteccionTermica  cámara térmica; solo aplica si el tipo es VIGILANCIA
      */
-    public void registrarDron(int id, String serial, String modelo, String fabricante, float peso) {
-        Dron dron = new Dron(id, serial, modelo, fabricante, peso);
+        // TODO PASO 5: agregar el ComboBox de tipo y los campos de capacidadTanque
+        // y deteccionTermica al formulario, y pasarlos aquí.
+        // controlador.registrarDron(tipo, id, serial, modelo, fabricante, peso,
+        //                           capacidadTanque, deteccionTermica);
+    public void registrarDron(TipoDron tipo, int id, String serial, String modelo,
+                              String fabricante, double peso,
+                              double capacidadTanque, boolean deteccionTermica) {
+
+        Dron dron = DronFactory.crearDron(tipo, id, serial, modelo, fabricante,
+                                          peso, capacidadTanque, deteccionTermica);
         dronDAO.guardar(dron);
     }
 
     /**
      * Elimina un dron del sistema según su identificador.
-    
      */
     public boolean eliminarDron(int id) {
         return dronDAO.eliminar(id);
@@ -66,8 +84,6 @@ public class DronControlador {
 
     /**
      * Actualiza la información de un dron existente.
-     * <p>La actualización se realiza sobre la entidad recibida, delegando la
-     * operación de persistencia a la capa DAO correspondiente.</p>
      */
     public boolean actualizarDron(Dron dron) {
         return dronDAO.actualizar(dron);

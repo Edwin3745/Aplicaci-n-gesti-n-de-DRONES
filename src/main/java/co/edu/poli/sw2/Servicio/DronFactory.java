@@ -2,42 +2,42 @@ package co.edu.poli.sw2.Servicio;
 
 import co.edu.poli.sw2.Modelo.Agricultura;
 import co.edu.poli.sw2.Modelo.Dron;
-import co.edu.poli.sw2.Modelo.vigilancia;
+import co.edu.poli.sw2.Modelo.TipoDron;
+import co.edu.poli.sw2.Modelo.Vigilancia;
 
 /**
- * Factory encargada de crear instancias concretas de Dron.
+ * Fábrica de drones.
  *
- * Esta clase centraliza la creación de objetos Agricultura y Vigilancia,
- * evitando que el controlador tenga que instanciar directamente las
- * clases concretas.
+ * Centraliza la construcción de las subclases concretas de {@link Dron}, de modo
+ * que ninguna otra capa necesite conocerlas ni decidir cuál instanciar. El
+ * Controlador pide un dron indicando su tipo y recibe la instancia adecuada.
  */
 public class DronFactory {
 
     /**
-     * Constructor privado para evitar la creación de instancias
-     * innecesarias de la Factory.
+     * Constructor privado: esta clase solo expone métodos estáticos y no debe
+     * instanciarse.
      */
     private DronFactory() {
     }
 
     /**
-     * Crea un dron según el tipo indicado.
+     * Crea la instancia concreta de dron que corresponda al tipo indicado.
      *
-     * @param tipo tipo de dron: "agricultura" o "vigilancia"
-     * @param id identificador del dron
-     * @param serial número de serie
-     * @param modelo modelo del dron
-     * @param fabricante fabricante del dron
-     * @param peso peso del dron
-     * @param capacidadTanque capacidad del tanque para drones agrícolas
-     * @param deteccionTermica indica si el dron de vigilancia tiene
-     *                         detección térmica
-     * @return una instancia de Agricultura o Vigilancia
-     * @throws IllegalArgumentException si el tipo no es válido
+     * @param tipo              subtipo de dron a construir
+     * @param id                identificador del dron
+     * @param serial            número de serie
+     * @param modelo            modelo del dron
+     * @param fabricante        fabricante del dron
+     * @param peso              peso en kilogramos
+     * @param capacidadTanque   litros del tanque; solo se usa si el tipo es AGRICULTURA
+     * @param deteccionTermica  cámara térmica; solo se usa si el tipo es VIGILANCIA
+     * @return instancia de {@link Agricultura} o {@link Vigilancia} según el tipo
+     * @throws IllegalArgumentException si el tipo es nulo
      */
     public static Dron crearDron(
-            String tipo,
-            String id,
+            TipoDron tipo,
+            int id,
             String serial,
             String modelo,
             String fabricante,
@@ -49,9 +49,9 @@ public class DronFactory {
             throw new IllegalArgumentException("El tipo de dron no puede ser nulo.");
         }
 
-        switch (tipo.toLowerCase()) {
+        switch (tipo) {
 
-            case "agricultura":
+            case AGRICULTURA:
                 return new Agricultura(
                         id,
                         serial,
@@ -61,7 +61,7 @@ public class DronFactory {
                         capacidadTanque
                 );
 
-            case "vigilancia":
+            case VIGILANCIA:
                 return new Vigilancia(
                         id,
                         serial,
@@ -72,9 +72,7 @@ public class DronFactory {
                 );
 
             default:
-                throw new IllegalArgumentException(
-                        "Tipo de dron no válido: " + tipo
-                );
+                throw new IllegalArgumentException("Tipo de dron no soportado: " + tipo);
         }
     }
 }

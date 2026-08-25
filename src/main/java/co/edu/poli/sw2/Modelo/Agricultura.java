@@ -20,10 +20,9 @@ public class Agricultura extends Dron {
     /**
      * Constructor completo.
      */
-    public Agricultura(String id, String serial, String modelo,
+    public Agricultura(int id, String serial, String modelo,
                        String fabricante, double peso,
                        double capacidadTanque) {
-
         super(id, serial, modelo, fabricante, peso);
         this.capacidadTanque = capacidadTanque;
     }
@@ -46,5 +45,14 @@ public class Agricultura extends Dron {
                 ", peso=" + getPeso() +
                 ", capacidadTanque=" + capacidadTanque +
                 '}';
+    }
+    @Override
+    public TipoDron getTipo() {
+        return TipoDron.AGRICULTURA;
+    }
+
+    @Override
+    public String descripcionOperativa() {
+        return "Fumigación y dispersión de insumos con tanque de " + capacidadTanque + " L";
     }
 }

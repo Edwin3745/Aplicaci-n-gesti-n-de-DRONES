@@ -20,10 +20,9 @@ public class Vigilancia extends Dron {
     /**
      * Constructor completo.
      */
-    public Vigilancia(String id, String serial, String modelo,
+      public Vigilancia(int id, String serial, String modelo,
                       String fabricante, double peso,
                       boolean deteccionTermica) {
-
         super(id, serial, modelo, fabricante, peso);
         this.deteccionTermica = deteccionTermica;
     }
@@ -46,5 +45,16 @@ public class Vigilancia extends Dron {
                 ", peso=" + getPeso() +
                 ", deteccionTermica=" + deteccionTermica +
                 '}';
+    }
+        @Override
+    public TipoDron getTipo() {
+        return TipoDron.VIGILANCIA;
+    }
+
+    @Override
+    public String descripcionOperativa() {
+        return deteccionTermica
+                ? "Patrullaje y monitoreo con cámara térmica (opera de noche)"
+                : "Patrullaje y monitoreo con cámara RGB (requiere luz diurna)";
     }
 }

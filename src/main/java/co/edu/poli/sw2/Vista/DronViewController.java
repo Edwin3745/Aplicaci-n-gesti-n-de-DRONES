@@ -66,7 +66,11 @@ public class DronViewController {
                 return;
             }
 
-            dronControlador.registrarDron(id, serial, modelo, fabricante, peso);
+            // dronControlador.registrarDron(id, serial, modelo, fabricante, peso);
+                        // TODO PASO 5: el formulario debe incluir un ComboBox de tipo y los campos
+            // de capacidadTanque / deteccionTermica, y pasarlos aquí.
+            // controlador.registrarDron(tipo, id, serial, modelo, fabricante, peso,
+            //                           capacidadTanque, deteccionTermica);
             actualizarTabla();
             limpiarCampos();
         } catch (NumberFormatException e) {

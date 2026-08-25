@@ -25,6 +25,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
      */
     @Override
     public void guardar(Dron dron) {
+        // TODO PASO 3: falta la columna 'tipo' y los atributos específicos
+        // (capacidad_tanque, deteccion_termica). El id ahora es SERIAL: lo genera
+        // PostgreSQL y debe recuperarse con getGeneratedKeys().
         String sql = "INSERT INTO dron (id, serial, modelo, fabricante, peso) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
@@ -34,7 +37,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             ps.setString(2, dron.getSerial());
             ps.setString(3, dron.getModelo());
             ps.setString(4, dron.getFabricante());
-            ps.setFloat(5, dron.getPeso());
+            ps.setDouble(5, dron.getPeso());
 
             ps.executeUpdate();
 
@@ -133,7 +136,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             ps.setString(1, dron.getSerial());
             ps.setString(2, dron.getModelo());
             ps.setString(3, dron.getFabricante());
-            ps.setFloat(4, dron.getPeso());
+            ps.setDouble(4, dron.getPeso());
             ps.setInt(5, dron.getId());
 
             return ps.executeUpdate() > 0;
@@ -151,12 +154,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
      * @throws SQLException si ocurre un error al leer los datos del ResultSet.
      */
     private Dron mapearDron(ResultSet rs) throws SQLException {
-        Dron dron = new Dron();
-        dron.setId(rs.getInt("id"));
-        dron.setSerial(rs.getString("serial"));
-        dron.setModelo(rs.getString("modelo"));
-        dron.setFabricante(rs.getString("fabricante"));
-        dron.setPeso(rs.getFloat("peso"));
-        return dron;
+        // TODO PASO 3: leer la columna 'tipo' y construir Agricultura o Vigilancia.
+        throw new UnsupportedOperationException("Pendiente: mapeo con herencia (paso 3).");
     }
 }
