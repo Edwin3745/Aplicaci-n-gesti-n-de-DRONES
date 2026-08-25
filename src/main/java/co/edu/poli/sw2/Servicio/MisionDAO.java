@@ -36,7 +36,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al guardar la misión", e);
+            throw new ServicioException("Error al guardar la misión", e);
         }
     }
 
@@ -51,7 +51,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar la misión", e);
+            throw new ServicioException("Error al eliminar la misión", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar la misión", e);
+            throw new ServicioException("Error al buscar la misión", e);
         }
 
         return null;
@@ -91,7 +91,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar misiones", e);
+            throw new ServicioException("Error al listar misiones", e);
         }
 
         return misiones;
@@ -114,7 +114,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar la misión", e);
+            throw new ServicioException("Error al actualizar la misión", e);
         }
     }
 

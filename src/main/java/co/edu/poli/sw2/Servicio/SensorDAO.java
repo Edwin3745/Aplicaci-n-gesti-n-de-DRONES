@@ -34,7 +34,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al guardar el sensor", e);
+            throw new ServicioException("Error al guardar el sensor", e);
         }
     }
 
@@ -49,7 +49,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar el sensor", e);
+            throw new ServicioException("Error al eliminar el sensor", e);
         }
     }
 
@@ -69,7 +69,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar el sensor", e);
+            throw new ServicioException("Error al buscar el sensor", e);
         }
 
         return null;
@@ -89,7 +89,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar sensores", e);
+            throw new ServicioException("Error al listar sensores", e);
         }
 
         return sensores;
@@ -117,7 +117,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar sensores del dron", e);
+            throw new ServicioException("Error al listar sensores del dron", e);
         }
 
         return sensores;
@@ -137,7 +137,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el sensor", e);
+            throw new ServicioException("Error al actualizar el sensor", e);
         }
     }
 

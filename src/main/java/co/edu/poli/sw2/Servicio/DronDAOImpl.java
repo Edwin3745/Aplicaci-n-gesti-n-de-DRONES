@@ -60,7 +60,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al guardar el dron", e);
+            throw new ServicioException("Error al guardar el dron", e);
         }
     }
 
@@ -81,7 +81,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar el dron", e);
+            throw new ServicioException("Error al eliminar el dron", e);
         }
     }
 
@@ -107,7 +107,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar el dron", e);
+            throw new ServicioException("Error al buscar el dron", e);
         }
 
         return null;
@@ -132,7 +132,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar drones", e);
+            throw new ServicioException("Error al listar drones", e);
         }
 
         return drones;
@@ -168,7 +168,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el dron", e);
+            throw new ServicioException("Error al actualizar el dron", e);
         }
     }
 

@@ -39,7 +39,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al guardar el piloto", e);
+            throw new ServicioException("Error al guardar el piloto", e);
         }
     }
 
@@ -54,7 +54,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar el piloto", e);
+            throw new ServicioException("Error al eliminar el piloto", e);
         }
     }
 
@@ -74,7 +74,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar el piloto", e);
+            throw new ServicioException("Error al buscar el piloto", e);
         }
 
         return null;
@@ -94,7 +94,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar pilotos", e);
+            throw new ServicioException("Error al listar pilotos", e);
         }
 
         return pilotos;
@@ -115,7 +115,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el piloto", e);
+            throw new ServicioException("Error al actualizar el piloto", e);
         }
     }
 

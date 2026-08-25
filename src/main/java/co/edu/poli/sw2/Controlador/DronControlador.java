@@ -5,87 +5,188 @@ import co.edu.poli.sw2.Modelo.TipoDron;
 import co.edu.poli.sw2.Servicio.DronDAOImpl;
 import co.edu.poli.sw2.Servicio.DronFactory;
 import co.edu.poli.sw2.Servicio.GenericDAO;
+import co.edu.poli.sw2.Servicio.ServicioException;
 
 import java.util.List;
 
 /**
- * Controlador responsable de gestionar las operaciones de negocio relacionadas
- * con los drones dentro del patrón MVC.
+ * Controlador de las operaciones de negocio sobre drones.
  *
- * <p>Esta clase actúa como intermediario entre la capa de vista y la capa de
- * acceso a datos. Su función principal es coordinar la creación, consulta,
- * actualización y eliminación de instancias de {@link Dron}, delegando la
- * construcción en {@link DronFactory} y la persistencia en la implementación
- * de {@link GenericDAO}.</p>
+ * <p>Media entre la vista y la capa de persistencia: delega la construcción
+ * de objetos en {@link DronFactory}, el almacenamiento en un
+ * {@link GenericDAO}, y traduce los fallos técnicos a mensajes que la vista
+ * puede mostrar sin conocer detalles de la base de datos.</p>
  */
 public class DronControlador {
 
-    /**
-     * Referencia a la capa de acceso a datos para gestionar objetos {@link Dron}.
-     */
     private final GenericDAO<Dron, Integer> dronDAO;
 
     /**
-     * Construye un nuevo controlador de drones.
+     * Construye el controlador con la implementación de DAO por defecto.
      */
     public DronControlador() {
-        this.dronDAO = new DronDAOImpl();
+        this(new DronDAOImpl());
     }
 
     /**
-     * Registra un nuevo dron en el sistema.
+     * Construye el controlador con el DAO indicado.
      *
-     * <p>El controlador no construye el dron directamente: delega esa decisión
-     * en {@link DronFactory}, que devuelve la subclase concreta según el tipo
-     * indicado.</p>
+     * <p>Permite sustituir la implementación de persistencia sin modificar
+     * esta clase, lo que habilita las pruebas unitarias con dobles de prueba.</p>
      *
-     * @param tipo              subtipo de dron a registrar
-     * @param id                identificador del dron
-     * @param serial            número de serie
-     * @param modelo            modelo del dron
-     * @param fabricante        fabricante del dron
-     * @param peso              peso en kilogramos
-     * @param capacidadTanque   litros del tanque; solo aplica si el tipo es AGRICULTURA
-     * @param deteccionTermica  cámara térmica; solo aplica si el tipo es VIGILANCIA
+     * @param dronDAO implementación de acceso a datos a utilizar.
      */
-        // TODO PASO 5: agregar el ComboBox de tipo y los campos de capacidadTanque
-        // y deteccionTermica al formulario, y pasarlos aquí.
-        // controlador.registrarDron(tipo, id, serial, modelo, fabricante, peso,
-        //                           capacidadTanque, deteccionTermica);
-    public void registrarDron(TipoDron tipo, int id, String serial, String modelo,
+    public DronControlador(GenericDAO<Dron, Integer> dronDAO) {
+        this.dronDAO = dronDAO;
+    }
+
+    /**
+     * Registra un nuevo dron.
+     *
+     * @param tipo             subtipo de dron a registrar.
+     * @param serial           número de serie, debe ser único.
+     * @param modelo           modelo del dron.
+     * @param fabricante       fabricante del dron.
+     * @param peso             peso en kilogramos.
+     * @param capacidadTanque  litros del tanque; solo aplica a AGRICULTURA.
+     * @param deteccionTermica cámara térmica; solo aplica a VIGILANCIA.
+     * @throws OperacionFallidaException si la operación no puede completarse.
+     */
+    public void registrarDron(TipoDron tipo, String serial, String modelo,
                               String fabricante, double peso,
                               double capacidadTanque, boolean deteccionTermica) {
 
-        Dron dron = DronFactory.crearDron(tipo, id, serial, modelo, fabricante,
+        validarDatosComunes(serial, modelo, fabricante, peso);
+
+        // El id lo genera la base de datos, por eso se envía 0.
+        Dron dron = DronFactory.crearDron(tipo, 0, serial, modelo, fabricante,
                                           peso, capacidadTanque, deteccionTermica);
-        dronDAO.guardar(dron);
+
+        try {
+            dronDAO.guardar(dron);
+        } catch (ServicioException e) {
+            throw traducir(e, "registrar", serial);
+        }
     }
 
     /**
-     * Elimina un dron del sistema según su identificador.
+     * Elimina un dron por su identificador.
+     *
+     * @param id identificador del dron.
+     * @return {@code true} si se eliminó algún registro.
+     * @throws OperacionFallidaException si la operación no puede completarse.
      */
     public boolean eliminarDron(int id) {
-        return dronDAO.eliminar(id);
+        try {
+            return dronDAO.eliminar(id);
+        } catch (ServicioException e) {
+            throw traducir(e, "eliminar", String.valueOf(id));
+        }
     }
 
     /**
      * Busca un dron por su identificador.
+     *
+     * @param id identificador del dron.
+     * @return el dron encontrado, o {@code null} si no existe.
+     * @throws OperacionFallidaException si la consulta no puede completarse.
      */
     public Dron buscarDron(int id) {
-        return dronDAO.buscarPorId(id);
+        try {
+            return dronDAO.buscarPorId(id);
+        } catch (ServicioException e) {
+            throw traducir(e, "consultar", String.valueOf(id));
+        }
     }
 
     /**
-     * Obtiene la lista completa de drones registrados.
+     * Obtiene todos los drones registrados.
+     *
+     * @return lista de drones, vacía si no hay ninguno.
+     * @throws OperacionFallidaException si la consulta no puede completarse.
      */
     public List<Dron> listarDrones() {
-        return dronDAO.listarTodos();
+        try {
+            return dronDAO.listarTodos();
+        } catch (ServicioException e) {
+            throw traducir(e, "listar", null);
+        }
     }
 
     /**
-     * Actualiza la información de un dron existente.
+     * Actualiza un dron existente.
+     *
+     * @param dron dron con los datos actualizados.
+     * @return {@code true} si se actualizó algún registro.
+     * @throws OperacionFallidaException si la operación no puede completarse.
      */
     public boolean actualizarDron(Dron dron) {
-        return dronDAO.actualizar(dron);
+        if (dron == null) {
+            throw new OperacionFallidaException("No hay ningún dron seleccionado.");
+        }
+        validarDatosComunes(dron.getSerial(), dron.getModelo(),
+                            dron.getFabricante(), dron.getPeso());
+        try {
+            return dronDAO.actualizar(dron);
+        } catch (ServicioException e) {
+            throw traducir(e, "actualizar", dron.getSerial());
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Validación y traducción de errores
+    // ------------------------------------------------------------------
+
+    /**
+     * Comprueba las reglas de negocio comunes antes de tocar la base de datos.
+     *
+     * @throws OperacionFallidaException si algún dato no cumple las reglas.
+     */
+    private void validarDatosComunes(String serial, String modelo,
+                                     String fabricante, double peso) {
+        if (serial == null || serial.isBlank()) {
+            throw new OperacionFallidaException("El serial es obligatorio.");
+        }
+        if (modelo == null || modelo.isBlank()) {
+            throw new OperacionFallidaException("El modelo es obligatorio.");
+        }
+        if (fabricante == null || fabricante.isBlank()) {
+            throw new OperacionFallidaException("El fabricante es obligatorio.");
+        }
+        if (peso < 0) {
+            throw new OperacionFallidaException("El peso no puede ser negativo.");
+        }
+    }
+
+    /**
+     * Convierte un fallo técnico de la capa de servicio en un mensaje que la
+     * vista puede mostrar directamente al usuario.
+     *
+     * <p>La excepción original se conserva como causa para el registro de
+     * errores, pero su texto técnico nunca llega a la interfaz.</p>
+     *
+     * @param e         excepción originada en la capa de servicio.
+     * @param operacion verbo de la operación que se intentaba, para el mensaje.
+     * @param referencia dato identificador del registro implicado, puede ser nulo.
+     * @return excepción con un mensaje apto para el usuario.
+     */
+    private OperacionFallidaException traducir(ServicioException e,
+                                               String operacion, String referencia) {
+        if (e.esDuplicado()) {
+            return new OperacionFallidaException(
+                    "Ya existe un dron con el serial " + referencia + ".", e);
+        }
+        if (e.esViolacionDeRegla()) {
+            return new OperacionFallidaException(
+                    "Los datos del dron no cumplen las reglas del sistema. "
+                    + "Revisa que el tipo y sus atributos correspondan.", e);
+        }
+        if (e.esReferenciaInvalida()) {
+            return new OperacionFallidaException(
+                    "El dron está asociado a otros registros y no puede modificarse.", e);
+        }
+        return new OperacionFallidaException(
+                "No se pudo " + operacion + " el dron. "
+                + "Verifica la conexión con la base de datos.", e);
     }
 }
