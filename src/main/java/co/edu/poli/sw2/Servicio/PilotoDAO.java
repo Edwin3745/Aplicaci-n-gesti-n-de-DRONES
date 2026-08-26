@@ -24,7 +24,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
         String sql = "INSERT INTO piloto (nombre, experiencia, telefono) VALUES (?, ?, ?)";
 
 
-        try (Connection con = ConexionBD.getInstancia().getConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, piloto.getNombre());
@@ -48,7 +48,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM piloto WHERE id = ?";
 
-        try (Connection con = ConexionBD.getInstancia().getConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -63,7 +63,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
     public Piloto buscarPorId(Integer id) {
         String sql = "SELECT " + COLUMNAS + " FROM piloto WHERE id = ?";
 
-        try (Connection con = ConexionBD.getInstancia().getConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -86,7 +86,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
         List<Piloto> pilotos = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM piloto ORDER BY id";
 
-        try (Connection con = ConexionBD.getInstancia().getConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -104,7 +104,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
     @Override
     public boolean actualizar(Piloto piloto) {
         String sql = "UPDATE piloto SET nombre = ?, experiencia = ?, telefono = ? WHERE id = ?";
-        try (Connection con = ConexionBD.getInstancia().getConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, piloto.getNombre());
