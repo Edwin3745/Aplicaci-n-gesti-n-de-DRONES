@@ -15,7 +15,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="co.edu.poli.sw2.Vista.DronViewController"
+            fx:controller="co.edu.poli.sw2.Vista.DronVista"
             styleClass="root-pane">
 
     <top>

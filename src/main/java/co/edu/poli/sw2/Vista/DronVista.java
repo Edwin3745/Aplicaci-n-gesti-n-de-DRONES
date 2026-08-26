@@ -21,7 +21,7 @@ import javafx.util.StringConverter;
  * de datos ni interpreta errores técnicos: cuando algo falla, muestra el
  * mensaje que ya viene redactado desde la capa de control.</p>
  */
-public class DronViewController {
+public class DronVista {
 
     @FXML private ComboBox<TipoDron> cmbTipo;
     @FXML private TextField txtId;
