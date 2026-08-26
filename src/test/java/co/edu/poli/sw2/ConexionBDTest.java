@@ -13,19 +13,40 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConexionBDTest {
 
     @Test
-    void getInstancia_debeRetornarConexionAbierta() throws Exception {
-        Connection con = ConexionBD.getInstancia().getConexion();
-
-        assertNotNull(con, "La conexión no debería ser null");
-        assertFalse(con.isClosed(), "La conexión debería estar abierta");
+    void abrirConexion_debeDevolverConexionAbierta() throws Exception {
+        try (Connection con = ConexionBD.obtenerConexion()) {
+            assertNotNull(con, "La conexión no debería ser null");
+            assertFalse(con.isClosed(), "La conexión debería estar abierta");
+        }
     }
 
     @Test
-    void getInstancia_llamadoDosVeces_debeRetornarLaMismaConexion() {
-        Connection primera = ConexionBD.getInstancia().getConexion();
-        Connection segunda = ConexionBD.getInstancia().getConexion();
-
+    void getInstancia_llamadoDosVeces_debeDevolverLaMismaInstancia() {
+        ConexionBD primera = ConexionBD.getInstancia();
+        ConexionBD segunda = ConexionBD.getInstancia();
         assertSame(primera, segunda,
-                "El patrón Singleton debe reutilizar la misma instancia de Connection");
+                "El patrón Singleton debe devolver siempre la misma instancia");
+    }
+
+    @Test
+    void abrirConexion_debeDevolverConexionesIndependientes() throws Exception {
+        try (Connection primera = ConexionBD.obtenerConexion();
+             Connection segunda = ConexionBD.obtenerConexion()) {
+
+            assertNotSame(primera, segunda,
+                    "Cada llamada debe devolver una conexión nueva: compartir una sola "
+                    + "haría que al cerrarla en una operación fallaran las demás");
+        }
+    }
+
+    @Test
+    void cerrarUnaConexion_noDebeAfectarALasSiguientes() throws Exception {
+        try (Connection primera = ConexionBD.obtenerConexion()) {
+            assertFalse(primera.isClosed());
+        }
+        try (Connection segunda = ConexionBD.obtenerConexion()) {
+            assertFalse(segunda.isClosed(),
+                    "Tras cerrar una conexión, las siguientes deben seguir funcionando");
+        }
     }
 }
