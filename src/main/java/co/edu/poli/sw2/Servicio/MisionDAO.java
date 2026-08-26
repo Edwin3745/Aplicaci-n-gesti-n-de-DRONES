@@ -19,7 +19,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
         String sql = "INSERT INTO mision (nombre, descripcion, ubicacion, fecha) "
                    + "VALUES (?, ?, ?, ?)";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con =ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, mision.getNombre());
@@ -44,7 +44,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM mision WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -59,7 +59,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
     public Mision buscarPorId(Integer id) {
         String sql = "SELECT " + COLUMNAS + " FROM mision WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -82,7 +82,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
         List<Mision> misiones = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM mision ORDER BY fecha DESC";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -102,7 +102,7 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
         String sql = "UPDATE mision SET nombre = ?, descripcion = ?, ubicacion = ?, "
                    + "fecha = ? WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, mision.getNombre());

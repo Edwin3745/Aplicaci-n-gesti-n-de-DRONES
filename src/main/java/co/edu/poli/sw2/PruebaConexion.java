@@ -5,7 +5,7 @@ import java.sql.Connection;
 
 public class PruebaConexion {
     public static void main(String[] args) {
-        try (Connection con = ConexionBD.obtenerConexion()) {
+        try (Connection con = ConexionBD.getInstancia().getConexion()) {
             System.out.println("✅ Conexión exitosa a PostgreSQL");
         } catch (Exception e) {
             System.out.println("❌ Error al conectar:");

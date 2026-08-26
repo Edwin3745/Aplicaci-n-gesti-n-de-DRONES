@@ -38,7 +38,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         String sql = "INSERT INTO dron (tipo, serial, modelo, fabricante, peso, "
                    + "capacidad_tanque, deteccion_termica) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // El tipo lo declara el propio objeto: no hace falta inspeccionar su clase.
@@ -74,7 +74,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM dron WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -95,7 +95,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     public Dron buscarPorId(Integer id) {
         String sql = "SELECT " + COLUMNAS + " FROM dron WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -123,7 +123,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         List<Dron> drones = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM dron ORDER BY id";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -152,7 +152,7 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         String sql = "UPDATE dron SET tipo = ?, serial = ?, modelo = ?, fabricante = ?, "
                    + "peso = ?, capacidad_tanque = ?, deteccion_termica = ? WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, dron.getTipo().getCodigo());

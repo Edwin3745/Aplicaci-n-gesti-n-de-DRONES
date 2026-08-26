@@ -18,7 +18,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
     public void guardar(Sensor sensor) {
         String sql = "INSERT INTO sensor (tipo, fabricante, dron_id) VALUES (?, ?, ?)";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, sensor.getTipo());
@@ -42,7 +42,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM sensor WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -57,7 +57,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
     public Sensor buscarPorId(Integer id) {
         String sql = "SELECT " + COLUMNAS + " FROM sensor WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -80,7 +80,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
         List<Sensor> sensores = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM sensor ORDER BY id";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -105,7 +105,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
         List<Sensor> sensores = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM sensor WHERE dron_id = ? ORDER BY id";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, dronId);
@@ -127,7 +127,7 @@ public class SensorDAO implements GenericDAO<Sensor, Integer> {
     public boolean actualizar(Sensor sensor) {
         String sql = "UPDATE sensor SET tipo = ?, fabricante = ? WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.getInstancia().getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, sensor.getTipo());
