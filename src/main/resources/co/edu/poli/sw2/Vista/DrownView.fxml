@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -71,6 +72,16 @@
                 <Button text="Actualizar" onAction="#actualizarDronSeleccionado"/>
                 <Button text="Eliminar" onAction="#eliminarDron"/>
                 <Button text="Limpiar" onAction="#limpiarFormulario"/>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Patrón Prototype: el usuario parte de una configuración base
+                 registrada en vez de rellenar el formulario desde cero. -->
+            <Label text="Configuración base:"/>
+            <HBox spacing="8">
+                <ComboBox fx:id="cmbPlantilla" prefWidth="160"/>
+                <Button text="Usar" onAction="#usarPlantilla"/>
             </HBox>
         </VBox>
     </left>

@@ -1,6 +1,7 @@
 package co.edu.poli.sw2;
 
 import co.edu.poli.sw2.Controlador.DronControlador;
+import co.edu.poli.sw2.Controlador.OperacionFallidaException;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.GenericDAO;
@@ -33,6 +34,51 @@ public class DronControladorTest {
 
         assertNotNull(dron, "El dron no debería ser null después de registrarlo");
         assertEquals("SN-001", dron.getSerial());
+    }
+
+    @Test
+    void crearDesdePlantilla_debeDevolverUnDronListoParaEditar() {
+        DronControlador controlador = new DronControlador(new InMemoryDronDAO());
+
+        Dron desdePlantilla = controlador.crearDesdePlantilla("Fumigador estándar");
+
+        assertNotNull(desdePlantilla, "La plantilla registrada debe poder usarse");
+        assertEquals(0, desdePlantilla.getId(),
+                "El dron llega sin id: todavía no se ha guardado");
+        assertEquals("Agras T40", desdePlantilla.getModelo(),
+                "Los datos de la configuración base deben llegar al formulario");
+    }
+
+    @Test
+    void crearDesdePlantilla_dosVeces_debeDevolverObjetosIndependientes() {
+        DronControlador controlador = new DronControlador(new InMemoryDronDAO());
+
+        Dron primero = controlador.crearDesdePlantilla("Vigilancia nocturna");
+        primero.setModelo("Modelo alterado por el usuario");
+
+        Dron segundo = controlador.crearDesdePlantilla("Vigilancia nocturna");
+
+        assertEquals("Matrice 30T", segundo.getModelo(),
+                "Editar un dron sacado de la plantilla no puede alterar la plantilla");
+    }
+
+    @Test
+    void crearDesdePlantilla_conNombreDesconocido_debeLanzarOperacionFallida() {
+        DronControlador controlador = new DronControlador(new InMemoryDronDAO());
+
+        OperacionFallidaException ex = assertThrows(OperacionFallidaException.class,
+                () -> controlador.crearDesdePlantilla("plantilla inexistente"));
+
+        assertTrue(ex.getMessage().contains("plantilla inexistente"),
+                "El mensaje debe llegar a la vista nombrando la plantilla buscada");
+    }
+
+    @Test
+    void nombresDePlantillas_debeOfrecerLasConfiguracionesBase() {
+        DronControlador controlador = new DronControlador(new InMemoryDronDAO());
+
+        assertTrue(controlador.nombresDePlantillas().contains("Fumigador estándar"));
+        assertTrue(controlador.nombresDePlantillas().contains("Vigilancia nocturna"));
     }
 
     private static class InMemoryDronDAO implements GenericDAO<Dron, Integer> {

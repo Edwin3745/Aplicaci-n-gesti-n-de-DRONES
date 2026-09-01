@@ -24,6 +24,7 @@ import javafx.util.StringConverter;
 public class DronVista {
 
     @FXML private ComboBox<TipoDron> cmbTipo;
+    @FXML private ComboBox<String> cmbPlantilla;
     @FXML private TextField txtId;
     @FXML private TextField txtSerial;
     @FXML private TextField txtModelo;
@@ -49,6 +50,7 @@ public class DronVista {
     @FXML
     public void initialize() {
         configurarComboTipo();
+        configurarComboPlantillas();
         configurarTabla();
         actualizarTabla();
     }
@@ -107,6 +109,16 @@ public class DronVista {
         lblDeteccionTermica.setManaged(esVigilancia);
         chkDeteccionTermica.setVisible(esVigilancia);
         chkDeteccionTermica.setManaged(esVigilancia);
+    }
+
+    /**
+     * Puebla el selector de configuraciones base con las plantillas que el
+     * controlador tiene registradas.
+     */
+    private void configurarComboPlantillas() {
+        cmbPlantilla.setItems(FXCollections.observableArrayList(
+                dronControlador.nombresDePlantillas()));
+        cmbPlantilla.getSelectionModel().selectFirst();
     }
 
     private void configurarTabla() {
@@ -219,6 +231,34 @@ public class DronVista {
         });
     }
 
+    /**
+     * Rellena el formulario con una copia de la configuración base elegida.
+     *
+     * <p>Lo que llega del controlador es un clon del prototipo, no el prototipo
+     * mismo: el usuario puede modificar libremente lo que aparece en pantalla
+     * sin alterar la plantilla. El serial se deja vacío a propósito, porque es
+     * único en la base de datos y tiene que escribirlo quien da el alta.</p>
+     */
+    @FXML
+    public void usarPlantilla() {
+        String nombre = cmbPlantilla.getValue();
+        if (nombre == null) {
+            mostrarAlerta("Selecciona una configuración base.");
+            return;
+        }
+
+        try {
+            Dron plantilla = dronControlador.crearDesdePlantilla(nombre);
+            cargarEnFormulario(plantilla);
+            txtSerial.clear();
+            txtSerial.requestFocus();
+            tablaDrones.getSelectionModel().clearSelection();
+
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
     @FXML
     public void limpiarFormulario() {
         txtId.clear();
@@ -237,12 +277,18 @@ public class DronVista {
     // ------------------------------------------------------------------
 
     /**
-     * Carga en el formulario los datos del dron seleccionado, incluidos los
-     * campos propios de su subtipo.
+     * Carga en el formulario los datos del dron indicado, incluidos los campos
+     * propios de su subtipo.
+     *
+     * <p>Sirve tanto para un dron elegido en la tabla como para la copia de una
+     * configuración base. En este segundo caso el identificador es 0 —el dron
+     * todavía no existe en la base de datos— y el campo se deja vacío.</p>
+     *
+     * @param dron dron cuyos datos se muestran en el formulario.
      */
     private void cargarEnFormulario(Dron dron) {
         cmbTipo.setValue(dron.getTipo());
-        txtId.setText(String.valueOf(dron.getId()));
+        txtId.setText(dron.getId() > 0 ? String.valueOf(dron.getId()) : "");
         txtSerial.setText(dron.getSerial());
         txtModelo.setText(dron.getModelo());
         txtFabricante.setText(dron.getFabricante());

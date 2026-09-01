@@ -4,10 +4,12 @@ import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.DronBuilder;
 import co.edu.poli.sw2.servicios.DronDAOImpl;
+import co.edu.poli.sw2.servicios.DronPrototypeManager;
 import co.edu.poli.sw2.servicios.GenericDAO;
 import co.edu.poli.sw2.servicios.ServicioException;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controlador de las operaciones de negocio sobre drones.
@@ -20,6 +22,9 @@ import java.util.List;
 public class DronControlador {
 
     private final GenericDAO<Dron, Integer> dronDAO;
+
+    /** Configuraciones base de dron que el usuario puede tomar como punto de partida. */
+    private final DronPrototypeManager plantillas = new DronPrototypeManager();
 
     /**
      * Construye el controlador con la implementación de DAO por defecto.
@@ -38,6 +43,67 @@ public class DronControlador {
      */
     public DronControlador(GenericDAO<Dron, Integer> dronDAO) {
         this.dronDAO = dronDAO;
+        registrarPlantillasBase();
+    }
+
+    // ------------------------------------------------------------------
+    // Configuraciones base (patrón Prototype)
+    // ------------------------------------------------------------------
+
+    /**
+     * Registra las configuraciones de dron más habituales de la operación.
+     *
+     * <p>Aquí se ve cómo se reparten el trabajo los dos patrones de creación:
+     * el {@link DronBuilder} arma la plantilla una sola vez, dato a dato, y a
+     * partir de ese momento el {@link DronPrototypeManager} produce copias de
+     * ella sin volver a pasar por la construcción ni por sus validaciones.</p>
+     */
+    private void registrarPlantillasBase() {
+        plantillas.registrar("Fumigador estándar", new DronBuilder()
+                .conTipo(TipoDron.AGRICULTURA)
+                .conSerial("AGR-BASE")
+                .conModelo("Agras T40")
+                .conFabricante("DJI")
+                .conPeso(38.0)
+                .conCapacidadTanque(40.0)
+                .build());
+
+        plantillas.registrar("Vigilancia nocturna", new DronBuilder()
+                .conTipo(TipoDron.VIGILANCIA)
+                .conSerial("VIG-BASE")
+                .conModelo("Matrice 30T")
+                .conFabricante("DJI")
+                .conPeso(3.7)
+                .conDeteccionTermica(true)
+                .build());
+    }
+
+    /**
+     * Nombres de las configuraciones base disponibles.
+     *
+     * @return conjunto de nombres, en el orden en que fueron registrados.
+     */
+    public Set<String> nombresDePlantillas() {
+        return plantillas.nombresRegistrados();
+    }
+
+    /**
+     * Entrega una copia de la configuración base indicada.
+     *
+     * <p>El dron devuelto no se guarda: llega sin identificador para que el
+     * usuario lo revise, ajuste lo que necesite y lo registre después como
+     * cualquier otro dron.</p>
+     *
+     * @param nombre nombre de la configuración base.
+     * @return copia independiente de la plantilla.
+     * @throws OperacionFallidaException si no existe ninguna con ese nombre.
+     */
+    public Dron crearDesdePlantilla(String nombre) {
+        try {
+            return plantillas.obtenerClon(nombre);
+        } catch (IllegalArgumentException e) {
+            throw new OperacionFallidaException(e.getMessage(), e);
+        }
     }
 
     /**
