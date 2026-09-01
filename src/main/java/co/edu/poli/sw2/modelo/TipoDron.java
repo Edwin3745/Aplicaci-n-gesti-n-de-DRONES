@@ -9,16 +9,29 @@ package co.edu.poli.sw2.modelo;
  */
 public enum TipoDron {
 
+    /** Dron destinado a labores agrícolas. */
     AGRICULTURA("agricultura"),
+
+    /** Dron destinado a labores de vigilancia. */
     VIGILANCIA("vigilancia");
 
+    /** Código con el que el tipo se guarda en la base de datos. */
     private final String codigo;
 
+    /**
+     * Asocia a cada constante su código de persistencia.
+     *
+     * @param codigo valor que se escribe en la columna discriminadora.
+     */
     TipoDron(String codigo) {
         this.codigo = codigo;
     }
 
-    /** @return código persistido en la columna discriminadora de la BD. */
+    /**
+     * Obtiene el código con el que este tipo se guarda en la base de datos.
+     *
+     * @return código persistido en la columna discriminadora.
+     */
     public String getCodigo() {
         return codigo;
     }

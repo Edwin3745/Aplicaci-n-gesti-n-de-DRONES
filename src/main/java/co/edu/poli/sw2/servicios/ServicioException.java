@@ -14,38 +14,70 @@ public class ServicioException extends RuntimeException {
     /** Código SQLSTATE devuelto por la base de datos, si lo hubo. */
     private final String codigoSql;
 
+    /**
+     * Crea la excepción a partir de un fallo técnico anterior.
+     *
+     * @param mensaje descripción de la operación que falló.
+     * @param causa   excepción original, normalmente una {@code SQLException};
+     *                de ella se extrae el código SQLSTATE.
+     */
     public ServicioException(String mensaje, Throwable causa) {
         super(mensaje, causa);
         this.codigoSql = extraerCodigo(causa);
     }
 
+    /**
+     * Crea la excepción sin una causa previa.
+     *
+     * @param mensaje descripción del fallo.
+     */
     public ServicioException(String mensaje) {
         super(mensaje);
         this.codigoSql = null;
     }
 
     /**
+     * Obtiene el código SQLSTATE del fallo.
+     *
      * @return código SQLSTATE de la causa, o {@code null} si no procede de la BD.
      */
     public String getCodigoSql() {
         return codigoSql;
     }
 
-    /** @return {@code true} si el fallo fue por violar una restricción UNIQUE. */
+    /**
+     * Indica si el fallo se debió a un valor duplicado.
+     *
+     * @return {@code true} si el fallo fue por violar una restricción UNIQUE.
+     */
     public boolean esDuplicado() {
         return "23505".equals(codigoSql);
     }
 
-    /** @return {@code true} si el fallo fue por violar una restricción CHECK o NOT NULL. */
+    /**
+     * Indica si el fallo se debió a una regla del esquema.
+     *
+     * @return {@code true} si el fallo fue por violar una restricción CHECK o NOT NULL.
+     */
     public boolean esViolacionDeRegla() {
         return "23514".equals(codigoSql) || "23502".equals(codigoSql);
     }
 
-    /** @return {@code true} si el fallo fue por violar una clave foránea. */
+    /**
+     * Indica si el fallo se debió a una referencia inexistente.
+     *
+     * @return {@code true} si el fallo fue por violar una clave foránea.
+     */
     public boolean esReferenciaInvalida() {
         return "23503".equals(codigoSql);
     }
 
+    /**
+     * Extrae el código SQLSTATE de la causa, cuando procede de la base de datos.
+     *
+     * @param causa excepción original.
+     * @return código SQLSTATE, o {@code null} si la causa no es de JDBC.
+     */
     private static String extraerCodigo(Throwable causa) {
         if (causa instanceof java.sql.SQLException sql) {
             return sql.getSQLState();

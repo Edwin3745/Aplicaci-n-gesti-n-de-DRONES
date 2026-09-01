@@ -51,15 +51,53 @@ public class Sensor {
         this.fabricante = original.fabricante;
     }
 
+    /**
+     * Obtiene el identificador del sensor.
+     *
+     * @return identificador del sensor.
+     */
     public int getId() { return id; }
+
+    /**
+     * Asigna el identificador del sensor.
+     *
+     * @param id nuevo identificador.
+     */
     public void setId(int id) { this.id = id; }
 
+    /**
+     * Obtiene la clase de sensor.
+     *
+     * @return clase de sensor: térmico, RGB, LiDAR, multiespectral, etc.
+     */
     public String getTipo() { return tipo; }
+
+    /**
+     * Actualiza la clase de sensor.
+     *
+     * @param tipo nueva clase de sensor.
+     */
     public void setTipo(String tipo) { this.tipo = tipo; }
 
+    /**
+     * Obtiene el fabricante del sensor.
+     *
+     * @return fabricante del sensor.
+     */
     public String getFabricante() { return fabricante; }
+
+    /**
+     * Actualiza el fabricante del sensor.
+     *
+     * @param fabricante nuevo fabricante.
+     */
     public void setFabricante(String fabricante) { this.fabricante = fabricante; }
 
+    /**
+     * Representación textual del sensor.
+     *
+     * @return descripción del sensor para diagnóstico.
+     */
     @Override
     public String toString() {
         return "Sensor{" + "id=" + id + ", tipo='" + tipo + '\'' +

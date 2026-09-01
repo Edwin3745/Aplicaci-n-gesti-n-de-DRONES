@@ -47,6 +47,19 @@ public class DronVista {
     private final DronControlador dronControlador = new DronControlador();
     private final ObservableList<Dron> listaDrones = FXCollections.observableArrayList();
 
+    /**
+     * Crea el controlador de la vista. Lo instancia el cargador de FXML.
+     */
+    public DronVista() {
+    }
+
+    /**
+     * Prepara la pantalla antes de mostrarla.
+     *
+     * <p>JavaFX llama a este método una vez inyectados los componentes del
+     * FXML: aquí se pueblan los selectores, se configura la tabla y se carga el
+     * listado inicial de drones.</p>
+     */
     @FXML
     public void initialize() {
         configurarComboTipo();
@@ -148,6 +161,12 @@ public class DronVista {
     // Acciones del usuario
     // ------------------------------------------------------------------
 
+    /**
+     * Registra un dron nuevo con los datos del formulario.
+     *
+     * <p>Si algún dato no es válido, muestra el mensaje que llega desde la capa
+     * de control, sin exponer detalles técnicos.</p>
+     */
     @FXML
     public void agregarDron() {
         try {
@@ -175,6 +194,9 @@ public class DronVista {
         }
     }
 
+    /**
+     * Guarda en el dron elegido de la tabla los cambios hechos en el formulario.
+     */
     @FXML
     public void actualizarDronSeleccionado() {
         Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
@@ -205,6 +227,9 @@ public class DronVista {
         }
     }
 
+    /**
+     * Elimina el dron elegido en la tabla, previa confirmación del usuario.
+     */
     @FXML
     public void eliminarDron() {
         Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
@@ -259,6 +284,9 @@ public class DronVista {
         }
     }
 
+    /**
+     * Vacía el formulario y deshace la selección de la tabla.
+     */
     @FXML
     public void limpiarFormulario() {
         txtId.clear();

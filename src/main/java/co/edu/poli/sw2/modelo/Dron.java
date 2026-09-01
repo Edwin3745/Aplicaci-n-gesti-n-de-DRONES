@@ -134,45 +134,95 @@ public abstract class Dron implements Prototipo {
     // Atributos comunes
     // ------------------------------------------------------------------
 
+    /**
+     * Obtiene el identificador del dron.
+     *
+     * @return identificador del dron; 0 si todavía no se ha guardado.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Asigna el identificador del dron.
+     *
+     * <p>Lo usa el DAO tras un alta, para reflejar en el objeto el id que
+     * generó la base de datos.</p>
+     *
+     * @param id nuevo identificador del dron.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Obtiene el número de serie del dron.
+     *
+     * @return número de serie.
+     */
     public String getSerial() {
         return serial;
     }
 
+    /**
+     * Actualiza el número de serie del dron.
+     *
+     * @param serial nuevo número de serie; debe ser único en el sistema.
+     */
     public void setSerial(String serial) {
         this.serial = serial;
     }
 
+    /**
+     * Obtiene el modelo del dron.
+     *
+     * @return modelo del dron.
+     */
     public String getModelo() {
         return modelo;
     }
 
+    /**
+     * Actualiza el modelo del dron.
+     *
+     * @param modelo nuevo modelo del dron.
+     */
     public void setModelo(String modelo) {
         this.modelo = modelo;
     }
 
+    /**
+     * Obtiene el fabricante del dron.
+     *
+     * @return fabricante del dron.
+     */
     public String getFabricante() {
         return fabricante;
     }
 
+    /**
+     * Actualiza el fabricante del dron.
+     *
+     * @param fabricante nuevo fabricante del dron.
+     */
     public void setFabricante(String fabricante) {
         this.fabricante = fabricante;
     }
 
+    /**
+     * Obtiene el peso del dron.
+     *
+     * @return peso en kilogramos.
+     */
     public double getPeso() {
         return peso;
     }
 
     /**
-     * @param peso peso en kilogramos
-     * @throws IllegalArgumentException si el peso es negativo
+     * Actualiza el peso del dron.
+     *
+     * @param peso peso en kilogramos.
+     * @throws IllegalArgumentException si el peso es negativo.
      */
     public void setPeso(double peso) {
         if (peso < 0) {
@@ -185,19 +235,33 @@ public abstract class Dron implements Prototipo {
     // Asociación bidireccional con Piloto
     // ------------------------------------------------------------------
 
+    /**
+     * Obtiene el piloto asignado a este dron.
+     *
+     * @return piloto asignado, o {@code null} si no tiene ninguno.
+     */
     public Piloto getPiloto() {
         return piloto;
     }
 
     /**
-     * Visibilidad de paquete a propósito: la relación solo puede modificarse
-     * mediante Piloto.asignarDron() y Piloto.liberarDron(), que mantienen
-     * ambos extremos sincronizados.
+     * Asigna el piloto de este dron.
+     *
+     * <p>Visibilidad de paquete a propósito: la relación solo puede modificarse
+     * mediante {@code Piloto.asignarDron()} y {@code Piloto.liberarDron()}, que
+     * mantienen ambos extremos sincronizados.</p>
+     *
+     * @param piloto piloto a asignar, o {@code null} para dejarlo sin asignar.
      */
     void setPiloto(Piloto piloto) {
         this.piloto = piloto;
     }
 
+    /**
+     * Indica si el dron tiene un piloto asignado.
+     *
+     * @return {@code true} si hay un piloto asignado.
+     */
     public boolean tienePilotoAsignado() {
         return piloto != null;
     }
@@ -207,12 +271,24 @@ public abstract class Dron implements Prototipo {
     // ------------------------------------------------------------------
 
     /**
-     * @return vista no modificable de los sensores montados
+     * Obtiene los sensores montados en el dron.
+     *
+     * <p>La lista se devuelve como vista no modificable para que la única
+     * forma de alterar la composición sea {@link #agregarSensor(Sensor)} y
+     * {@link #removerSensor(Sensor)}.</p>
+     *
+     * @return vista no modificable de los sensores montados.
      */
     public List<Sensor> getSensores() {
         return Collections.unmodifiableList(sensores);
     }
 
+    /**
+     * Monta un sensor en el dron.
+     *
+     * @param sensor sensor a montar; no puede ser nulo.
+     * @throws IllegalArgumentException si el sensor es nulo.
+     */
     public void agregarSensor(Sensor sensor) {
         if (sensor == null) {
             throw new IllegalArgumentException("El sensor no puede ser nulo.");
@@ -220,6 +296,12 @@ public abstract class Dron implements Prototipo {
         sensores.add(sensor);
     }
 
+    /**
+     * Retira un sensor del dron.
+     *
+     * @param sensor sensor a retirar.
+     * @return {@code true} si el sensor estaba montado y se retiró.
+     */
     public boolean removerSensor(Sensor sensor) {
         return sensores.remove(sensor);
     }
@@ -229,8 +311,13 @@ public abstract class Dron implements Prototipo {
     // ------------------------------------------------------------------
 
     /**
-     * Dos drones son el mismo si comparten identificador, sin importar si son
-     * instancias distintas en memoria.
+     * Compara dos drones por su identificador.
+     *
+     * <p>Dos drones son el mismo si comparten identificador, sin importar si
+     * son instancias distintas en memoria.</p>
+     *
+     * @param obj objeto con el que compararse.
+     * @return {@code true} si el otro objeto es un dron con el mismo id.
      */
     @Override
     public boolean equals(Object obj) {
@@ -239,13 +326,23 @@ public abstract class Dron implements Prototipo {
         return this.id == ((Dron) obj).id;
     }
 
+    /**
+     * Calcula el código hash a partir del identificador, en coherencia con
+     * {@link #equals(Object)}.
+     *
+     * @return código hash del dron.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
     /**
-     * Bloque común reutilizable por las subclases en su propio toString().
+     * Compone la parte común de la representación textual del dron.
+     *
+     * <p>Bloque reutilizable por las subclases en su propio {@code toString()}.</p>
+     *
+     * @return los atributos comunes del dron en forma de texto.
      */
     protected String datosBase() {
         return "id=" + id +
@@ -258,6 +355,11 @@ public abstract class Dron implements Prototipo {
                 ", sensores=" + sensores.size();
     }
 
+    /**
+     * Representación textual del dron, encabezada por su clase concreta.
+     *
+     * @return descripción del dron para diagnóstico.
+     */
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" + datosBase() + "}";

@@ -62,14 +62,29 @@ public class Vigilancia extends Dron {
         return new Vigilancia(this);
     }
 
+    /**
+     * Indica si el dron cuenta con detección térmica.
+     *
+     * @return {@code true} si lleva cámara térmica.
+     */
     public boolean isDeteccionTermica() {
         return deteccionTermica;
     }
 
+    /**
+     * Actualiza si el dron cuenta con detección térmica.
+     *
+     * @param deteccionTermica {@code true} si lleva cámara térmica.
+     */
     public void setDeteccionTermica(boolean deteccionTermica) {
         this.deteccionTermica = deteccionTermica;
     }
 
+    /**
+     * Representación textual del dron de vigilancia.
+     *
+     * @return descripción del dron para diagnóstico.
+     */
     @Override
     public String toString() {
         return "Vigilancia{" +

@@ -83,7 +83,18 @@ public class Piloto {
      */
     public void setNombre(String nombre) { this.nombre = nombre; }
 
+    /**
+     * Obtiene el número de licencia de vuelo.
+     *
+     * @return número de licencia del piloto.
+     */
     public String getLicencia() { return licencia; }
+
+    /**
+     * Actualiza el número de licencia de vuelo.
+     *
+     * @param licencia nuevo número de licencia.
+     */
     public void setLicencia(String licencia) { this.licencia = licencia; }
 
     /**

@@ -18,6 +18,12 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
     /**
+     * Crea la aplicación. Lo invoca JavaFX al arrancar.
+     */
+    public MainApp() {
+    }
+
+    /**
      * Inicializa la ventana principal de la aplicación.
      *
      * Carga la vista definida en el archivo FXML, establece el tamaño de la

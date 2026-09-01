@@ -48,6 +48,12 @@ public class DronBuilder {
     private boolean deteccionTermica;
 
     /**
+     * Crea un builder sin ningún dato fijado.
+     */
+    public DronBuilder() {
+    }
+
+    /**
      * Indica el subtipo de dron que se va a construir.
      *
      * @param tipo subtipo deseado.

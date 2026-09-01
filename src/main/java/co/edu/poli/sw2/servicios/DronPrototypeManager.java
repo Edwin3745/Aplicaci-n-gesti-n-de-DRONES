@@ -34,6 +34,12 @@ public class DronPrototypeManager {
     private final Map<String, Dron> prototipos = new LinkedHashMap<>();
 
     /**
+     * Crea un registro de prototipos vacío.
+     */
+    public DronPrototypeManager() {
+    }
+
+    /**
      * Registra un dron como plantilla bajo la clave indicada.
      *
      * <p>Lo que se guarda es una copia del dron recibido, no el dron mismo: si

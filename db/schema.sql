@@ -37,8 +37,8 @@ CREATE TABLE piloto (
     telefono VARCHAR(30)
 );
 
-COMMENT ON TABLE  piloto             IS 'Pilotos habilitados para operar drones.';
-COMMENT ON COLUMN piloto.experiencia IS 'Años de experiencia acumulados.';
+COMMENT ON TABLE  piloto          IS 'Pilotos habilitados para operar drones.';
+COMMENT ON COLUMN piloto.licencia IS 'Número de licencia de vuelo del piloto.';
 
 
 -- ----------------------------------------------------------------------------

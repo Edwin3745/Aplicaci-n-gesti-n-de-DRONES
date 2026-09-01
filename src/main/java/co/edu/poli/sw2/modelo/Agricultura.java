@@ -62,14 +62,29 @@ public class Agricultura extends Dron {
         return new Agricultura(this);
     }
 
+    /**
+     * Obtiene la capacidad del tanque.
+     *
+     * @return capacidad del tanque en litros.
+     */
     public double getCapacidadTanque() {
         return capacidadTanque;
     }
 
+    /**
+     * Actualiza la capacidad del tanque.
+     *
+     * @param capacidadTanque nueva capacidad en litros.
+     */
     public void setCapacidadTanque(double capacidadTanque) {
         this.capacidadTanque = capacidadTanque;
     }
 
+    /**
+     * Representación textual del dron de agricultura.
+     *
+     * @return descripción del dron para diagnóstico.
+     */
     @Override
     public String toString() {
         return "Agricultura{" +

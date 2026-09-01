@@ -23,13 +23,15 @@ Desde pgAdmin: crear la base `dron_bd`, abrir el *Query Tool* sobre ella, pegar 
 
 ## Conexión desde la aplicación
 
-Copiar `src/main/resources/co/edu/poli/sw2/Vista/db.properties.example` como `db.properties` y completar las credenciales locales. Ese archivo está en `.gitignore` y no debe subirse al repositorio.
+Las credenciales se leen de un archivo `.env` en la raíz del proyecto, o de las variables de entorno del sistema si el archivo no existe. `.env` está en `.gitignore` y no debe subirse al repositorio.
 
-```properties
-db.url=jdbc:postgresql://localhost:5432/dron_bd
-db.user=postgres
-db.password=<tu_contraseña_local>
+```dotenv
+DB_URL=jdbc:postgresql://localhost:5432/dron_bd
+DB_USER=postgres
+DB_PASSWORD=<tu_contraseña_local>
 ```
+
+Quien lee ese archivo es `ConexionBD`, el Singleton de la capa de servicios. Lo hace una sola vez, al crear la instancia, y a partir de ahí mantiene una única conexión compartida por toda la aplicación.
 
 ## Modelo de datos
 

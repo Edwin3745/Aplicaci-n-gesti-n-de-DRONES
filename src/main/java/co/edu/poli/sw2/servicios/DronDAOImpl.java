@@ -31,6 +31,13 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
             "id, tipo, serial, modelo, fabricante, peso, capacidad_tanque, deteccion_termica";
 
     /**
+     * Crea el DAO. No abre ninguna conexión: cada operación pide la compartida
+     * a {@link ConexionBD} en el momento de usarla.
+     */
+    public DronDAOImpl() {
+    }
+
+    /**
      * Guarda un nuevo dron.
      *
      * <p>El identificador lo genera la base de datos (columna SERIAL), por lo
