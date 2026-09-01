@@ -1,4 +1,6 @@
 package co.edu.poli.sw2;
+
+import co.edu.poli.sw2.servicios.ConexionBD;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -32,6 +34,19 @@ public class MainApp extends Application {
         stage.setTitle("Gestión de Drones");
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * Libera los recursos al cerrarse la aplicación.
+     *
+     * <p>JavaFX invoca este método cuando se cierra la última ventana. Aquí se
+     * cierra la conexión compartida que mantiene {@link ConexionBD}: es el
+     * único punto del programa autorizado a hacerlo, porque mientras la
+     * aplicación esté viva cualquier operación puede necesitarla.</p>
+     */
+    @Override
+    public void stop() {
+        ConexionBD.getInstancia().cerrarConexion();
     }
 
     /**

@@ -17,6 +17,12 @@ import java.util.List;
  * discriminadora: todos los subtipos comparten la tabla {@code dron} y la
  * columna {@code tipo} indica de qué subclase es cada fila. Los atributos
  * propios de un subtipo quedan en NULL en las filas de los demás.</p>
+ *
+ * <p>Todos los métodos trabajan sobre la conexión compartida que entrega
+ * {@link ConexionBD}. El DAO cierra únicamente lo que él mismo abre
+ * ({@link PreparedStatement} y {@link ResultSet}); la conexión no se cierra
+ * nunca aquí, porque es propiedad del Singleton y las operaciones posteriores
+ * la siguen necesitando.</p>
  */
 public class DronDAOImpl implements GenericDAO<Dron, Integer> {
 
@@ -38,8 +44,10 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         String sql = "INSERT INTO dron (tipo, serial, modelo, fabricante, peso, "
                    + "capacidad_tanque, deteccion_termica) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        // La conexión no entra en el try-with-resources: pertenece al Singleton
+        // y cerrarla dejaría inservibles las operaciones siguientes.
+        try (PreparedStatement ps = ConexionBD.obtenerConexion()
+                .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // El tipo lo declara el propio objeto: no hace falta inspeccionar su clase.
             ps.setString(1, dron.getTipo().getCodigo());
@@ -74,8 +82,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM dron WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        // La conexión no entra en el try-with-resources: pertenece al Singleton
+        // y cerrarla dejaría inservibles las operaciones siguientes.
+        try (PreparedStatement ps = ConexionBD.obtenerConexion().prepareStatement(sql)) {
 
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
@@ -95,8 +104,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
     public Dron buscarPorId(Integer id) {
         String sql = "SELECT " + COLUMNAS + " FROM dron WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        // La conexión no entra en el try-with-resources: pertenece al Singleton
+        // y cerrarla dejaría inservibles las operaciones siguientes.
+        try (PreparedStatement ps = ConexionBD.obtenerConexion().prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
@@ -123,8 +133,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         List<Dron> drones = new ArrayList<>();
         String sql = "SELECT " + COLUMNAS + " FROM dron ORDER BY id";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
+        // La conexión no entra en el try-with-resources: pertenece al Singleton
+        // y cerrarla dejaría inservibles las operaciones siguientes.
+        try (PreparedStatement ps = ConexionBD.obtenerConexion().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -152,8 +163,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
         String sql = "UPDATE dron SET tipo = ?, serial = ?, modelo = ?, fabricante = ?, "
                    + "peso = ?, capacidad_tanque = ?, deteccion_termica = ? WHERE id = ?";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        // La conexión no entra en el try-with-resources: pertenece al Singleton
+        // y cerrarla dejaría inservibles las operaciones siguientes.
+        try (PreparedStatement ps = ConexionBD.obtenerConexion().prepareStatement(sql)) {
 
             ps.setString(1, dron.getTipo().getCodigo());
             ps.setString(2, dron.getSerial());

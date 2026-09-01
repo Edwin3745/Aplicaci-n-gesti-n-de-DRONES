@@ -10,19 +10,25 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Punto único de acceso a la configuración de la base de datos, siguiendo el
- * patrón Singleton.
+ * Punto único de acceso a la base de datos, siguiendo el patrón Singleton.
  *
- * <p>Los datos de conexión (URL, usuario, contraseña) se leen una sola vez
- * desde un archivo {@code .env} o desde variables de entorno del sistema
- * operativo, y quedan disponibles para toda la aplicación.</p>
+ * <p>La clase cumple dos funciones. Primero, lee una sola vez los datos de
+ * conexión (URL, usuario, contraseña) desde un archivo {@code .env} o desde
+ * las variables de entorno del sistema operativo. Segundo, mantiene una
+ * <em>única</em> {@link Connection} compartida por toda la aplicación, que
+ * entrega mediante {@link #getConexion()}.</p>
  *
- * <p>Lo que el Singleton comparte es la <em>configuración</em>, no la conexión:
- * cada llamada a {@link #abrirConexion()} devuelve una {@link Connection}
- * independiente que quien la pide debe cerrar, preferiblemente con
- * try-with-resources. Compartir una única conexión entre operaciones haría que
- * la primera en cerrarse dejara inservibles a las demás, y provocaría
- * interferencias entre transacciones simultáneas.</p>
+ * <p>Compartir una sola conexión es viable en este proyecto porque JavaFX
+ * atiende los eventos de la interfaz en un único hilo: nunca hay dos
+ * operaciones simultáneas compitiendo por ella. A cambio se evita abrir y
+ * cerrar una conexión TCP contra PostgreSQL en cada operación, que es la parte
+ * más costosa de cada consulta.</p>
+ *
+ * <p>La contrapartida del diseño es que la conexión <strong>pertenece al
+ * Singleton</strong>: ningún DAO debe cerrarla, porque dejaría inservibles a
+ * todas las operaciones posteriores. La única clase autorizada a cerrarla es
+ * {@code MainApp}, al terminar la aplicación, mediante
+ * {@link #cerrarConexion()}.</p>
  *
  * <p>Las credenciales nunca se exponen: no se imprimen por consola ni se
  * ofrecen mediante métodos públicos.</p>
@@ -37,10 +43,19 @@ public final class ConexionBD {
     private final String password;
 
     /**
+     * Conexión compartida por toda la aplicación.
+     *
+     * <p>Se abre de forma perezosa en la primera llamada a
+     * {@link #getConexion()} y se reutiliza a partir de ahí.</p>
+     */
+    private Connection conexion;
+
+    /**
      * Constructor privado: obliga a obtener la instancia mediante
      * {@link #getInstancia()}.
      *
-     * @throws IllegalStateException si la configuración no puede cargarse.
+     * @throws IllegalStateException si la configuración no puede cargarse o si
+     *                               falta el driver JDBC de PostgreSQL.
      */
     private ConexionBD() {
         Properties config = cargarConfiguracion();
@@ -79,36 +94,68 @@ public final class ConexionBD {
     }
 
     /**
-     * Abre una nueva conexión con la base de datos.
+     * Entrega la conexión compartida con la base de datos.
      *
-     * <p>Cada llamada devuelve una conexión independiente. Quien la obtiene es
-     * responsable de cerrarla.</p>
+     * <p>La primera llamada la abre; las siguientes devuelven exactamente la
+     * misma instancia. Si la conexión se hubiera perdido o cerrado, se
+     * restablece de forma transparente antes de devolverla, de modo que quien
+     * la pide siempre recibe una conexión utilizable.</p>
      *
-     * @return conexión abierta con la base de datos.
+     * <p><strong>La conexión pertenece al Singleton: quien la recibe no debe
+     * cerrarla.</strong> En particular, no debe colocarse en un
+     * {@code try-with-resources}: cerrarla desde un DAO haría fallar todas las
+     * operaciones posteriores de la aplicación. Su cierre corresponde
+     * únicamente a {@link #cerrarConexion()}, al terminar el programa.</p>
+     *
+     * @return la conexión compartida, abierta y lista para usarse.
      * @throws SQLException si la conexión no puede establecerse.
      */
-    public Connection abrirConexion() throws SQLException {
-        return DriverManager.getConnection(url, usuario, password);
+    public Connection getConexion() throws SQLException {
+        if (conexion == null || conexion.isClosed()) {
+            conexion = DriverManager.getConnection(url, usuario, password);
+        }
+        return conexion;
     }
 
     /**
-     * Acceso directo a una conexión sin obtener antes la instancia.
+     * Cierra la conexión compartida y la descarta.
      *
-     * <p>Es el método que utilizan los DAO; internamente delega en la instancia
-     * única.</p>
+     * <p>Está pensado para invocarse una sola vez, al terminar la aplicación,
+     * desde {@code MainApp.stop()}. Tras llamarlo, una nueva petición a
+     * {@link #getConexion()} vuelve a abrir la conexión, de modo que el
+     * Singleton nunca queda inservible.</p>
      *
-     * @return conexión abierta con la base de datos.
+     * <p>Si el cierre falla no se propaga la excepción: la aplicación ya está
+     * terminando y no hay ninguna acción que el usuario pueda emprender.</p>
+     */
+    public void cerrarConexion() {
+        if (conexion == null) {
+            return;
+        }
+        try {
+            if (!conexion.isClosed()) {
+                conexion.close();
+            }
+        } catch (SQLException e) {
+            System.err.println("No se pudo cerrar la conexión con la base de datos: "
+                    + e.getMessage());
+        } finally {
+            conexion = null;
+        }
+    }
+
+    /**
+     * Atajo para obtener la conexión compartida sin pedir antes la instancia.
+     *
+     * <p>Es el método que utilizan los DAO; delega en {@link #getConexion()},
+     * por lo que rigen las mismas condiciones: la conexión es del Singleton y
+     * no debe cerrarse.</p>
+     *
+     * @return la conexión compartida, abierta y lista para usarse.
      * @throws SQLException si la conexión no puede establecerse.
      */
     public static Connection obtenerConexion() throws SQLException {
-        return getInstancia().abrirConexion();
-    }
-
-    /**
-     * @return la URL de conexión, sin credenciales, apta para diagnóstico.
-     */
-    public String getUrlSegura() {
-        return url;
+        return getInstancia().getConexion();
     }
 
     // ===================== Carga de configuración desde .env =====================
