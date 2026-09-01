@@ -4,7 +4,7 @@ import co.edu.poli.sw2.Modelo.Agricultura;
 import co.edu.poli.sw2.Modelo.Dron;
 import co.edu.poli.sw2.Modelo.TipoDron;
 import co.edu.poli.sw2.Modelo.Vigilancia;
-import co.edu.poli.sw2.Servicio.DronFactory;
+import co.edu.poli.sw2.servicios.DronFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

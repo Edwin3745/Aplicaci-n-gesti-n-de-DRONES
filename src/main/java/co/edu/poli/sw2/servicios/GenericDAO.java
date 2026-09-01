@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.Servicio;
+package co.edu.poli.sw2.servicios;
 
 import java.util.List;
 

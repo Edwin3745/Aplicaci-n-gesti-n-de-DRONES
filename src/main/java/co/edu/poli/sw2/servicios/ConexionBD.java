@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.Servicio;
+package co.edu.poli.sw2.servicios;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

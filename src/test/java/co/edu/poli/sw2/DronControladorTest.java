@@ -3,7 +3,7 @@ package co.edu.poli.sw2;
 import co.edu.poli.sw2.Controlador.DronControlador;
 import co.edu.poli.sw2.Modelo.Dron;
 import co.edu.poli.sw2.Modelo.TipoDron;
-import co.edu.poli.sw2.Servicio.GenericDAO;
+import co.edu.poli.sw2.servicios.GenericDAO;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

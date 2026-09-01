@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.Servicio;
+package co.edu.poli.sw2.servicios;
 
 /**
  * Excepción propia de la capa de servicio.

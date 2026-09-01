@@ -1,6 +1,6 @@
 package co.edu.poli.sw2;
 
-import co.edu.poli.sw2.Servicio.ConexionBD;   
+import co.edu.poli.sw2.servicios.ConexionBD;   
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
