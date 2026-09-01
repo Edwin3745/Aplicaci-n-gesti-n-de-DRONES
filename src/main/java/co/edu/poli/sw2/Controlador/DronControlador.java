@@ -2,11 +2,10 @@ package co.edu.poli.sw2.Controlador;
 
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
-import co.edu.poli.sw2.servicios.AgriculturaFactory;
+import co.edu.poli.sw2.servicios.DronBuilder;
 import co.edu.poli.sw2.servicios.DronDAOImpl;
 import co.edu.poli.sw2.servicios.GenericDAO;
 import co.edu.poli.sw2.servicios.ServicioException;
-import co.edu.poli.sw2.servicios.VigilanciaFactory;
 
 import java.util.List;
 
@@ -14,10 +13,9 @@ import java.util.List;
  * Controlador de las operaciones de negocio sobre drones.
  *
  * <p>Media entre la vista y la capa de persistencia: delega la construcción
- * de objetos en la fábrica del subtipo correspondiente
- * ({@link AgriculturaFactory} o {@link VigilanciaFactory}), el almacenamiento
- * en un {@link GenericDAO}, y traduce los fallos técnicos a mensajes que la
- * vista puede mostrar sin conocer detalles de la base de datos.</p>
+ * de objetos en {@link DronBuilder}, el almacenamiento en un
+ * {@link GenericDAO}, y traduce los fallos técnicos a mensajes que la vista
+ * puede mostrar sin conocer detalles de la base de datos.</p>
  */
 public class DronControlador {
 
@@ -58,20 +56,25 @@ public class DronControlador {
                               String fabricante, double peso,
                               double capacidadTanque, boolean deteccionTermica) {
 
-        validarDatosComunes(serial, modelo, fabricante, peso);
+        // El Builder reúne los datos del formulario, los valida y decide qué
+        // subtipo construir. El id no se le pasa: lo genera la base de datos.
+        Dron dron;
+        try {
+            dron = new DronBuilder()
+                    .conTipo(tipo)
+                    .conSerial(serial)
+                    .conModelo(modelo)
+                    .conFabricante(fabricante)
+                    .conPeso(peso)
+                    .conCapacidadTanque(capacidadTanque)
+                    .conDeteccionTermica(deteccionTermica)
+                    .build();
 
-        if (tipo == null) {
-            throw new OperacionFallidaException("Selecciona un tipo de dron.");
+        } catch (IllegalStateException e) {
+            // El builder informa del dato que falla en un lenguaje que la vista
+            // puede mostrar tal cual; solo hay que cambiar el tipo de excepción.
+            throw new OperacionFallidaException(e.getMessage(), e);
         }
-
-        // El id lo genera la base de datos, por eso se envía 0.
-        Dron dron = switch (tipo) {
-            case AGRICULTURA -> AgriculturaFactory.crearDron(
-                    0, serial, modelo, fabricante, peso, capacidadTanque);
-
-            case VIGILANCIA -> VigilanciaFactory.crearDron(
-                    0, serial, modelo, fabricante, peso, deteccionTermica);
-        };
 
         try {
             dronDAO.guardar(dron);
