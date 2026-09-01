@@ -21,9 +21,8 @@ public class Piloto {
     private String nombre;
 
     /**
-     * Nivel de experiencia del piloto.
-     */
-    private int experiencia;
+     Número de licencia de vuelo. */
+    private String licencia;
 
     /**
      * Número de contacto del piloto.
@@ -46,13 +45,13 @@ public class Piloto {
      *
      * @param id identificador único del piloto.
      * @param nombre nombre completo del piloto.
-     * @param experiencia años o nivel de experiencia del piloto.
+     * @param licencia número de licencia de vuelo
      * @param telefono número de contacto del piloto.
      */
-    public Piloto(int id, String nombre, int experiencia, String telefono) {
+    public Piloto(int id, String nombre, String licencia, String telefono) {
         this.id = id;
         this.nombre = nombre;
-        this.experiencia = experiencia;
+        this.licencia = licencia;
         this.telefono = telefono;
     }
 
@@ -84,19 +83,8 @@ public class Piloto {
      */
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    /**
-     * Obtiene la experiencia del piloto.
-     *
-     * @return nivel o cantidad de experiencia del piloto.
-     */
-    public int getExperiencia() { return experiencia; }
-
-    /**
-     * Actualiza la experiencia del piloto.
-     *
-     * @param experiencia nueva experiencia del piloto.
-     */
-    public void setExperiencia(int experiencia) { this.experiencia = experiencia; }
+    public String getLicencia() { return licencia; }
+    public void setLicencia(String licencia) { this.licencia = licencia; }
 
     /**
      * Obtiene el teléfono de contacto del piloto.
@@ -130,43 +118,50 @@ public class Piloto {
         return dron != null;
     }
 
-    /**
-     * Asigna un dron al piloto y mantiene sincronizada la relación en ambos sentidos.
+     /**
+     * Asigna un dron a este piloto manteniendo la coherencia de la relación
+     * en ambos extremos y liberando cualquier vínculo previo, tanto del
+     * piloto como del dron entrante.
      *
-     * @param nuevoDron dron que se va a asignar al piloto.
-     * @throws IllegalArgumentException si se intenta asignar un dron nulo.
+     * @param nuevoDron dron a asignar.
+     * @throws IllegalArgumentException si el dron es nulo.
      */
     public void asignarDron(Dron nuevoDron) {
         if (nuevoDron == null) {
             throw new IllegalArgumentException("El dron no puede ser nulo.");
         }
-        if (this.dron != null && this.dron != nuevoDron) {
-            liberarDron();
+        if (this.dron == nuevoDron) {
+            return;
         }
+
+        liberarDron();
+
+        Piloto pilotoAnterior = nuevoDron.getPiloto();
+        if (pilotoAnterior != null && pilotoAnterior != this) {
+            pilotoAnterior.liberarDron();
+        }
+
         this.dron = nuevoDron;
         nuevoDron.setPiloto(this);
     }
 
     /**
-     * Libera la relación entre el piloto y el dron asignado.
+     * Libera el dron asignado, dejando ambos extremos de la relación limpios.
      */
     public void liberarDron() {
         if (this.dron != null) {
-            Dron dronAnterior = this.dron;
+            Dron anterior = this.dron;
             this.dron = null;
-            dronAnterior.setPiloto(null);
+            anterior.setPiloto(null);
         }
     }
 
-    /**
-     * Devuelve una representación textual del piloto y su dron asociado.
-     *
-     * @return cadena con el estado actual del piloto.
-     */
     @Override
     public String toString() {
-        return "Piloto{" + "id=" + id + ", nombre='" + nombre + '\'' +
-                ", experiencia=" + experiencia + ", telefono='" + telefono + '\'' +
-                ", dron=" + (dron != null ? dron.getId() : "sin asignar") + '}';
+        return "Piloto{id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", licencia='" + licencia + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", dron=" + (dron != null ? dron.getSerial() : "sin asignar") + '}';
     }
 }

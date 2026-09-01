@@ -31,12 +31,10 @@ DROP TABLE IF EXISTS piloto   CASCADE;
 --  Se crea antes que dron porque dron la referencia.
 -- ----------------------------------------------------------------------------
 CREATE TABLE piloto (
-    id          SERIAL       PRIMARY KEY,
-    nombre      VARCHAR(120) NOT NULL,
-    experiencia INTEGER      NOT NULL DEFAULT 0,
-    telefono    VARCHAR(30),
-
-    CONSTRAINT chk_piloto_experiencia CHECK (experiencia >= 0)
+    id       SERIAL       PRIMARY KEY,
+    nombre   VARCHAR(120) NOT NULL,
+    licencia VARCHAR(50),
+    telefono VARCHAR(30)
 );
 
 COMMENT ON TABLE  piloto             IS 'Pilotos habilitados para operar drones.';
@@ -123,11 +121,10 @@ CREATE INDEX idx_sensor_dron ON sensor (dron_id);
 --  MISION
 -- ----------------------------------------------------------------------------
 CREATE TABLE mision (
-    id          SERIAL       PRIMARY KEY,
-    nombre      VARCHAR(120) NOT NULL,
-    descripcion TEXT,
-    ubicacion   VARCHAR(200),
-    fecha       DATE         NOT NULL DEFAULT CURRENT_DATE
+    id        SERIAL       PRIMARY KEY,
+    nombre    VARCHAR(120) NOT NULL,
+    ubicacion VARCHAR(200),
+    fecha     DATE         NOT NULL DEFAULT CURRENT_DATE
 );
 
 COMMENT ON TABLE mision IS 'Misiones planificadas para la flota.';

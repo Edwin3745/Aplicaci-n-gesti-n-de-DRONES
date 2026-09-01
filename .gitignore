@@ -6,7 +6,6 @@ target/
 
 # Credenciales locales: NUNCA se sube al repositorio
 .env
-src/main/resources/co/edu/poli/sw2/Vista/db.properties
 
 # Basura del sistema operativo
 .DS_Store

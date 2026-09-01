@@ -26,7 +26,7 @@ class DAOsRestantesTest {
 
         Piloto piloto = new Piloto();
         piloto.setNombre("Piloto Prueba");
-        piloto.setExperiencia(3);
+        piloto.setLicencia("LIC-9999");
         piloto.setTelefono("3000000000");
 
         pilotoDAO.guardar(piloto);
@@ -37,6 +37,8 @@ class DAOsRestantesTest {
 
         Piloto releido = pilotoDAO.buscarPorId(piloto.getId());
         assertEquals("Piloto Modificado", releido.getNombre());
+        assertEquals("LIC-9999", releido.getLicencia(),
+                "La licencia debe persistirse y recuperarse correctamente");
 
         assertTrue(pilotoDAO.eliminar(piloto.getId()));
         assertNull(pilotoDAO.buscarPorId(piloto.getId()));
@@ -68,7 +70,6 @@ class DAOsRestantesTest {
 
         Mision mision = new Mision();
         mision.setNombre("Mision Prueba");
-        mision.setDescripcion("Descripcion de prueba");
         mision.setUbicacion("Lote de pruebas");
         mision.setFecha(new Date());
 

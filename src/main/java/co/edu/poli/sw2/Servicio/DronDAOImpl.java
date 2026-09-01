@@ -1,6 +1,6 @@
 package co.edu.poli.sw2.Servicio;
 
-import co.edu.poli.sw2.Config.ConexionBD;
+
 import co.edu.poli.sw2.Modelo.Agricultura;
 import co.edu.poli.sw2.Modelo.Dron;
 import co.edu.poli.sw2.Modelo.TipoDron;

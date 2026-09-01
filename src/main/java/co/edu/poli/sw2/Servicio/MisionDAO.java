@@ -1,6 +1,5 @@
 package co.edu.poli.sw2.Servicio;
 
-import co.edu.poli.sw2.Config.ConexionBD;
 import co.edu.poli.sw2.Modelo.Mision;
 
 import java.sql.*;
@@ -12,20 +11,18 @@ import java.util.List;
  */
 public class MisionDAO implements GenericDAO<Mision, Integer> {
 
-    private static final String COLUMNAS = "id, nombre, descripcion, ubicacion, fecha";
+    private static final String COLUMNAS = "id, nombre, ubicacion, fecha";
 
-    @Override
+        @Override
     public void guardar(Mision mision) {
-        String sql = "INSERT INTO mision (nombre, descripcion, ubicacion, fecha) "
-                   + "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO mision (nombre, ubicacion, fecha) VALUES (?, ?, ?)";
 
-        try (Connection con =ConexionBD.obtenerConexion();
+        try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, mision.getNombre());
-            ps.setString(2, mision.getDescripcion());
-            ps.setString(3, mision.getUbicacion());
-            ps.setDate(4, new java.sql.Date(mision.getFecha().getTime()));
+            ps.setString(2, mision.getUbicacion());
+            ps.setDate(3, new java.sql.Date(mision.getFecha().getTime()));
 
             ps.executeUpdate();
 
@@ -97,19 +94,17 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
         return misiones;
     }
 
-    @Override
+        @Override
     public boolean actualizar(Mision mision) {
-        String sql = "UPDATE mision SET nombre = ?, descripcion = ?, ubicacion = ?, "
-                   + "fecha = ? WHERE id = ?";
+        String sql = "UPDATE mision SET nombre = ?, ubicacion = ?, fecha = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, mision.getNombre());
-            ps.setString(2, mision.getDescripcion());
-            ps.setString(3, mision.getUbicacion());
-            ps.setDate(4, new java.sql.Date(mision.getFecha().getTime()));
-            ps.setInt(5, mision.getId());
+            ps.setString(2, mision.getUbicacion());
+            ps.setDate(3, new java.sql.Date(mision.getFecha().getTime()));
+            ps.setInt(4, mision.getId());
 
             return ps.executeUpdate() > 0;
 
@@ -129,7 +124,6 @@ public class MisionDAO implements GenericDAO<Mision, Integer> {
         Mision mision = new Mision();
         mision.setId(rs.getInt("id"));
         mision.setNombre(rs.getString("nombre"));
-        mision.setDescripcion(rs.getString("descripcion"));
         mision.setUbicacion(rs.getString("ubicacion"));
         mision.setFecha(rs.getDate("fecha"));
         return mision;

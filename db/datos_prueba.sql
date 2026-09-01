@@ -12,11 +12,11 @@
 -- ----------------------------------------------------------------------------
 --  PILOTOS
 -- ----------------------------------------------------------------------------
-INSERT INTO piloto (nombre, experiencia, telefono) VALUES
-('Ana Restrepo',   5, '3001234567'),
-('Luis Gómez',     2, '3009876543'),
-('Carolina Mejía', 8, '3105551122'),
-('Andrés Pardo',   1, '3157778899');
+INSERT INTO piloto (nombre, licencia, telefono) VALUES
+('Ana Restrepo',   'LIC-0001', '3001234567'),
+('Luis Gómez',     'LIC-0002', '3009876543'),
+('Carolina Mejía', 'LIC-0003', '3105551122'),
+('Andrés Pardo',   'LIC-0004', '3157778899');
 
 
 -- ----------------------------------------------------------------------------
@@ -52,10 +52,10 @@ INSERT INTO sensor (tipo, fabricante, dron_id) VALUES
 -- ----------------------------------------------------------------------------
 --  MISIONES
 -- ----------------------------------------------------------------------------
-INSERT INTO mision (nombre, descripcion, fecha) VALUES
-('Fumigación Lote Norte',   'Aplicación de insumos sobre 12 hectáreas de caña.', '2026-08-10'),
-('Patrullaje Perimetral',   'Ronda nocturna del perímetro de la finca.',         '2026-08-15'),
-('Inspección Post-Lluvia',  'Evaluación de daños tras temporada de lluvias.',    '2026-08-20');
+INSERT INTO mision (nombre, ubicacion, fecha) VALUES
+('Fumigación Lote Norte',  'Lote Norte, Valle del Cauca',  '2026-08-10'),
+('Patrullaje Perimetral',  'Perímetro finca La Esperanza', '2026-08-15'),
+('Inspección Post-Lluvia', 'Sector Sur',                   '2026-08-20');
 
 
 -- ----------------------------------------------------------------------------

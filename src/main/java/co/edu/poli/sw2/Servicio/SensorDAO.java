@@ -1,6 +1,5 @@
 package co.edu.poli.sw2.Servicio;
 
-import co.edu.poli.sw2.Config.ConexionBD;
 import co.edu.poli.sw2.Modelo.Sensor;
 
 import java.sql.*;

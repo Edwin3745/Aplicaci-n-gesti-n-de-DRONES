@@ -1,6 +1,5 @@
 package co.edu.poli.sw2.Servicio;
 
-import co.edu.poli.sw2.Config.ConexionBD;
 import co.edu.poli.sw2.Modelo.Piloto;
 
 import java.sql.*;
@@ -12,7 +11,7 @@ import java.util.List;
  */
 public class PilotoDAO implements GenericDAO<Piloto, Integer> {
 
-    private static final String COLUMNAS = "id, nombre, experiencia, telefono";
+    private static final String COLUMNAS = "id, nombre, licencia, telefono";
 
     /**
      * Guarda un nuevo piloto. El identificador lo genera la base de datos.
@@ -21,14 +20,14 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
      */
     @Override
     public void guardar(Piloto piloto) {
-        String sql = "INSERT INTO piloto (nombre, experiencia, telefono) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO piloto (nombre, licencia, telefono) VALUES (?, ?, ?)";
 
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, piloto.getNombre());
-            ps.setInt(2, piloto.getExperiencia());
+            ps.setString(2, piloto.getLicencia());
             ps.setString(3, piloto.getTelefono());
 
             ps.executeUpdate();
@@ -103,12 +102,12 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
 
     @Override
     public boolean actualizar(Piloto piloto) {
-        String sql = "UPDATE piloto SET nombre = ?, experiencia = ?, telefono = ? WHERE id = ?";
+        String sql = "UPDATE piloto SET nombre = ?, licencia = ?, telefono = ? WHERE id = ?";
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, piloto.getNombre());
-            ps.setInt(2, piloto.getExperiencia());
+            ps.setString(2, piloto.getLicencia());
             ps.setString(3, piloto.getTelefono());
             ps.setInt(4, piloto.getId());
 
@@ -130,7 +129,7 @@ public class PilotoDAO implements GenericDAO<Piloto, Integer> {
         Piloto piloto = new Piloto();
         piloto.setId(rs.getInt("id"));
         piloto.setNombre(rs.getString("nombre"));
-        piloto.setExperiencia(rs.getInt("experiencia"));
+        piloto.setLicencia(rs.getString("licencia"));
         piloto.setTelefono(rs.getString("telefono"));
         return piloto;
     }
