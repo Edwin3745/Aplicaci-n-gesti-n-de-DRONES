@@ -27,6 +27,19 @@ class ManejoErroresTest {
     }
 
     @Test
+    void registrarDron_conTipoNulo_debeLanzarOperacionFallida() {
+        // Al separarse la fábrica en una por subtipo, la decisión de cuál usar
+        // pasó al controlador, y con ella la validación del tipo: sin tipo no
+        // hay forma de saber qué subclase construir.
+        OperacionFallidaException ex = assertThrows(OperacionFallidaException.class, () ->
+                controlador.registrarDron(null, "SIN-TIPO-TEST",
+                        "Modelo X", "Fab Y", 5.0, 0.0, true));
+
+        assertTrue(ex.getMessage().toLowerCase().contains("tipo"),
+                "El mensaje debe indicar cuál es el dato que falta");
+    }
+
+    @Test
     void registrarDron_conPesoNegativo_debeLanzarOperacionFallida() {
         OperacionFallidaException ex = assertThrows(OperacionFallidaException.class, () ->
                 controlador.registrarDron(TipoDron.VIGILANCIA, "VIG-NEG-TEST",

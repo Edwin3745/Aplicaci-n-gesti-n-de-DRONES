@@ -223,9 +223,9 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
      * Convierte la fila actual del {@link ResultSet} en la subclase de
      * {@link Dron} que corresponda.
      *
-     * <p>La columna discriminadora determina qué construir; la construcción
-     * se delega en {@link DronFactory}, de modo que este DAO no instancia
-     * directamente ninguna subclase.</p>
+     * <p>La columna discriminadora determina qué construir, y la construcción
+     * se delega en la fábrica del subtipo correspondiente, de modo que este DAO
+     * no invoca directamente el constructor de ninguna subclase.</p>
      *
      * @param rs resultado posicionado en la fila a convertir.
      * @return instancia de {@link Agricultura} o {@link Vigilancia}.
@@ -235,21 +235,22 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
 
         TipoDron tipo = TipoDron.desdeCodigo(rs.getString("tipo"));
 
-        // getDouble y getBoolean devuelven 0 y false cuando la columna es NULL.
-        // Como la fábrica recibe ambos valores, se leen los dos y solo se usa
-        // el que corresponda al tipo: el otro se ignora dentro de la fábrica.
-        double capacidadTanque = rs.getDouble("capacidad_tanque");
-        boolean deteccionTermica = rs.getBoolean("deteccion_termica");
+        int id = rs.getInt("id");
+        String serial = rs.getString("serial");
+        String modelo = rs.getString("modelo");
+        String fabricante = rs.getString("fabricante");
+        double peso = rs.getDouble("peso");
 
-        return DronFactory.crearDron(
-                tipo,
-                rs.getInt("id"),
-                rs.getString("serial"),
-                rs.getString("modelo"),
-                rs.getString("fabricante"),
-                rs.getDouble("peso"),
-                capacidadTanque,
-                deteccionTermica
-        );
+        // getDouble y getBoolean devuelven 0 y false cuando la columna es NULL,
+        // así que cada rama lee únicamente la columna que su subtipo utiliza.
+        return switch (tipo) {
+            case AGRICULTURA -> AgriculturaFactory.crearDron(
+                    id, serial, modelo, fabricante, peso,
+                    rs.getDouble("capacidad_tanque"));
+
+            case VIGILANCIA -> VigilanciaFactory.crearDron(
+                    id, serial, modelo, fabricante, peso,
+                    rs.getBoolean("deteccion_termica"));
+        };
     }
 }

@@ -2,10 +2,11 @@ package co.edu.poli.sw2.Controlador;
 
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
+import co.edu.poli.sw2.servicios.AgriculturaFactory;
 import co.edu.poli.sw2.servicios.DronDAOImpl;
-import co.edu.poli.sw2.servicios.DronFactory;
 import co.edu.poli.sw2.servicios.GenericDAO;
 import co.edu.poli.sw2.servicios.ServicioException;
+import co.edu.poli.sw2.servicios.VigilanciaFactory;
 
 import java.util.List;
 
@@ -13,9 +14,10 @@ import java.util.List;
  * Controlador de las operaciones de negocio sobre drones.
  *
  * <p>Media entre la vista y la capa de persistencia: delega la construcción
- * de objetos en {@link DronFactory}, el almacenamiento en un
- * {@link GenericDAO}, y traduce los fallos técnicos a mensajes que la vista
- * puede mostrar sin conocer detalles de la base de datos.</p>
+ * de objetos en la fábrica del subtipo correspondiente
+ * ({@link AgriculturaFactory} o {@link VigilanciaFactory}), el almacenamiento
+ * en un {@link GenericDAO}, y traduce los fallos técnicos a mensajes que la
+ * vista puede mostrar sin conocer detalles de la base de datos.</p>
  */
 public class DronControlador {
 
@@ -58,9 +60,18 @@ public class DronControlador {
 
         validarDatosComunes(serial, modelo, fabricante, peso);
 
+        if (tipo == null) {
+            throw new OperacionFallidaException("Selecciona un tipo de dron.");
+        }
+
         // El id lo genera la base de datos, por eso se envía 0.
-        Dron dron = DronFactory.crearDron(tipo, 0, serial, modelo, fabricante,
-                                          peso, capacidadTanque, deteccionTermica);
+        Dron dron = switch (tipo) {
+            case AGRICULTURA -> AgriculturaFactory.crearDron(
+                    0, serial, modelo, fabricante, peso, capacidadTanque);
+
+            case VIGILANCIA -> VigilanciaFactory.crearDron(
+                    0, serial, modelo, fabricante, peso, deteccionTermica);
+        };
 
         try {
             dronDAO.guardar(dron);
