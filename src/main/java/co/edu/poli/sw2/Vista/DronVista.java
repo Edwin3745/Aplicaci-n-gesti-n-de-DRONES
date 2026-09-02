@@ -6,6 +6,7 @@ import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.servicios.DemostracionPatron;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,6 +36,9 @@ public class DronVista {
     @FXML private TextField txtCapacidadTanque;
     @FXML private Label lblDeteccionTermica;
     @FXML private CheckBox chkDeteccionTermica;
+
+    @FXML private Button btnClonar;
+    @FXML private TextArea txtEvidencia;
 
     @FXML private TableView<Dron> tablaDrones;
     @FXML private TableColumn<Dron, Integer> colId;
@@ -155,6 +159,11 @@ public class DronVista {
                         cargarEnFormulario(seleccionado);
                     }
                 });
+
+        // Clonar solo tiene sentido con una fila elegida: el botón se deshabilita
+        // solo, atado a la selección de la tabla, en vez de comprobarlo al pulsar.
+        btnClonar.disableProperty().bind(
+                tablaDrones.getSelectionModel().selectedItemProperty().isNull());
     }
 
     // ------------------------------------------------------------------
@@ -284,6 +293,89 @@ public class DronVista {
         }
     }
 
+    // ------------------------------------------------------------------
+    // Demostración de los patrones de creación
+    // ------------------------------------------------------------------
+
+    /**
+     * Clona el dron elegido en la tabla y muestra la evidencia de que la copia
+     * es otro objeto en memoria.
+     *
+     * <p>El clon se carga en el formulario con el identificador y el serial en
+     * blanco: aún no existe en la base de datos y el serial es único, así que
+     * debe escribirlo quien vaya a darlo de alta. El informe va al área de
+     * evidencia, nunca a la consola.</p>
+     */
+    @FXML
+    public void clonarDronSeleccionado() {
+        Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
+
+        try {
+            DemostracionPatron resultado = dronControlador.clonarDron(seleccionado);
+
+            cargarEnFormulario(resultado.dron());
+            txtId.clear();
+            txtSerial.clear();
+            escribirEvidencia(resultado.informe());
+            txtSerial.requestFocus();
+
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
+     * Construye un dron con el patrón Builder y muestra la secuencia de
+     * llamadas encadenadas junto con el objeto resultante.
+     *
+     * <p>Toma los datos del formulario; los campos vacíos se completan con
+     * valores de muestra para que la demostración funcione siempre.</p>
+     */
+    @FXML
+    public void construirConBuilder() {
+        try {
+            DemostracionPatron resultado = dronControlador.construirConBuilder(
+                    cmbTipo.getValue(),
+                    txtSerial.getText(),
+                    txtModelo.getText(),
+                    txtFabricante.getText(),
+                    leerDecimalOpcional(txtPeso),
+                    leerDecimalOpcional(txtCapacidadTanque),
+                    chkDeteccionTermica.isSelected());
+
+            cargarEnFormulario(resultado.dron());
+            escribirEvidencia(resultado.informe());
+            tablaDrones.getSelectionModel().clearSelection();
+
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
+     * Vacía el área de evidencia.
+     */
+    @FXML
+    public void limpiarEvidencia() {
+        txtEvidencia.clear();
+    }
+
+    /**
+     * Vuelca un informe en el área de evidencia, debajo de lo que ya hubiera.
+     *
+     * <p>Cada informe se separa del anterior con una línea en blanco, y el área
+     * se desplaza al final para que lo recién escrito quede a la vista.</p>
+     *
+     * @param informe texto redactado por la capa de servicios.
+     */
+    private void escribirEvidencia(String informe) {
+        if (!txtEvidencia.getText().isEmpty()) {
+            txtEvidencia.appendText(System.lineSeparator());
+        }
+        txtEvidencia.appendText(informe);
+        txtEvidencia.positionCaret(txtEvidencia.getLength());
+    }
+
     /**
      * Vacía el formulario y deshace la selección de la tabla.
      */
@@ -361,6 +453,31 @@ public class DronVista {
         } catch (NumberFormatException e) {
             throw new OperacionFallidaException(
                     "El campo " + nombre + " debe ser un número. Valor recibido: " + texto);
+        }
+    }
+
+    /**
+     * Lee un campo numérico sin exigir que esté relleno.
+     *
+     * <p>A diferencia de {@link #leerDecimal(TextField, String)}, un campo vacío
+     * no es un error: devuelve 0 y deja que el llamador decida. Lo usan los
+     * botones de demostración, que deben funcionar con el formulario a medio
+     * llenar. Un texto que no sea un número sí se rechaza.</p>
+     *
+     * @param campo campo de texto a leer.
+     * @return valor introducido, o 0 si el campo está vacío.
+     * @throws OperacionFallidaException si el texto no es un número válido.
+     */
+    private double leerDecimalOpcional(TextField campo) {
+        String texto = campo.getText() == null ? "" : campo.getText().trim();
+        if (texto.isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(texto.replace(',', '.'));
+        } catch (NumberFormatException e) {
+            throw new OperacionFallidaException(
+                    "El valor \"" + texto + "\" no es un número válido.");
         }
     }
 

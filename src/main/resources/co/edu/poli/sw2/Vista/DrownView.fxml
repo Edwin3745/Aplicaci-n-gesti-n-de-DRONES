@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -83,6 +84,16 @@
                 <ComboBox fx:id="cmbPlantilla" prefWidth="160"/>
                 <Button text="Usar" onAction="#usarPlantilla"/>
             </HBox>
+
+            <Separator/>
+
+            <!-- Demostración de los patrones de creación. La salida de ambos
+                 botones va al área de evidencia, nunca a la consola. -->
+            <Label text="Demostración de patrones:"/>
+            <HBox spacing="8">
+                <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
+                <Button text="Builder" onAction="#construirConBuilder"/>
+            </HBox>
         </VBox>
     </left>
 
@@ -101,5 +112,28 @@
             </BorderPane.margin>
         </TableView>
     </center>
+
+    <bottom>
+        <!-- Área de evidencia: aquí escriben los botones Clonar y Builder.
+             Es de solo lectura y con scroll; nada se imprime por consola. -->
+        <VBox spacing="6" styleClass="panel-evidencia">
+            <padding>
+                <Insets top="0" left="10" bottom="10" right="15"/>
+            </padding>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Evidencia de los patrones" styleClass="subtitulo"/>
+                <Button text="Limpiar evidencia" onAction="#limpiarEvidencia"/>
+            </HBox>
+
+            <TextArea fx:id="txtEvidencia"
+                      editable="false"
+                      wrapText="false"
+                      prefRowCount="10"
+                      prefHeight="200"
+                      promptText="Pulsa Clonar o Builder para ver aquí la evidencia."
+                      styleClass="area-evidencia"/>
+        </VBox>
+    </bottom>
 
 </BorderPane>
