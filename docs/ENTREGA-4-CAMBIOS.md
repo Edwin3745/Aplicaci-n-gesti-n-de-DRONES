@@ -245,4 +245,4 @@ El recuento bajó momentáneamente a 15 al eliminar `Daosrestantestest` junto co
 
 6. **`Piloto`, `Sensor` y `Mision` se quedaron sin persistencia** al eliminar sus DAO. Sus tablas siguen en el esquema y las clases en el modelo, pero ninguna operación de la aplicación las usa. Es lo que pide el diagrama; si la entrega 5 necesita esas entidades, habrá que reintroducir el acceso a datos.
 
-7. **Directorio vacío `src/main/java/co/edu/poli/sw2/Config/`.** Residuo de cuando `ConexionBD` vivía ahí. No está rastreado por git y no afecta a la compilación; se dejó pendiente de confirmación para eliminarlo.
+7. ~~**Directorio vacío `src/main/java/co/edu/poli/sw2/Config/`.**~~ Resuelto: era un residuo de cuando `ConexionBD` vivía ahí. Se eliminó. No aparece en el historial de git porque los directorios vacíos no se rastrean.
