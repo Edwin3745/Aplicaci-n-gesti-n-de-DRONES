@@ -35,34 +35,6 @@ public class Agricultura extends Dron {
     }
 
     /**
-     * Constructor copia.
-     *
-     * <p>Delega en el de {@link Dron} los atributos comunes —incluida la
-     * duplicación de los sensores y el descarte del id y del piloto— y añade
-     * lo propio del subtipo.</p>
-     *
-     * @param original dron de agricultura del que se toman los datos.
-     */
-    protected Agricultura(Agricultura original) {
-        super(original);
-        this.capacidadTanque = original.capacidadTanque;
-    }
-
-    /**
-     * Crea una copia independiente de este dron de agricultura.
-     *
-     * <p>El tipo de retorno es {@code Agricultura} y no {@code Dron}: clonar un
-     * dron de agricultura produce siempre otro dron de agricultura, y así queda
-     * declarado para quien llame al método sobre una referencia concreta.</p>
-     *
-     * @return copia de este dron, sin identificador y sin piloto asignado.
-     */
-    @Override
-    public Agricultura copiar() {
-        return new Agricultura(this);
-    }
-
-    /**
      * Obtiene la capacidad del tanque.
      *
      * @return capacidad del tanque en litros.

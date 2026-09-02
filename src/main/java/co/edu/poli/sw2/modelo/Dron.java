@@ -13,12 +13,8 @@ import java.util.Objects;
  * cada subtipo concreto debe definir.
  *
  * Las clases Agricultura y Vigilancia heredan de esta clase.
- *
- * <p>Implementa {@link Prototipo}: cualquier dron sabe producir una copia
- * independiente de sí mismo, que es lo que permite registrar configuraciones
- * base y partir de ellas en vez de rellenar los datos desde cero.</p>
  */
-public abstract class Dron implements Prototipo {
+public abstract class Dron {
 
     /** Identificador único del dron. Clave técnica, corresponde a la columna id de la BD. */
     private int id;
@@ -66,44 +62,6 @@ public abstract class Dron implements Prototipo {
         this.modelo = modelo;
         this.fabricante = fabricante;
         this.peso = peso;
-    }
-
-    /**
-     * Constructor copia, base del patrón Prototype.
-     *
-     * <p>Copia los atributos comunes y decide qué <em>no</em> se hereda de la
-     * plantilla:</p>
-     * <ul>
-     *   <li><strong>El identificador queda en 0.</strong> El id es la identidad
-     *       del dron en la base de datos, y la copia todavía no existe allí.
-     *       Arrastrarlo haría que una actualización sobre la copia sobrescribiera
-     *       la fila del original.</li>
-     *   <li><strong>El piloto queda sin asignar.</strong> Un piloto conduce un
-     *       solo dron —la columna {@code piloto_id} es UNIQUE—, así que copiar
-     *       la referencia le robaría el piloto al original.</li>
-     *   <li><strong>Los sensores se duplican de verdad.</strong> Se construye
-     *       una lista nueva y, dentro, un {@link Sensor} nuevo por cada uno: el
-     *       sensor es una pieza física montada en un dron concreto, no algo que
-     *       dos drones puedan compartir. Copiar solo la lista dejaría objetos
-     *       compartidos; copiar solo la referencia a la lista haría que agregar
-     *       un sensor a la copia se lo agregara también al original.</li>
-     * </ul>
-     *
-     * <p>El serial <em>sí</em> se copia, aunque la base lo exija único: la copia
-     * está pensada para editarse antes de guardarla, y dejar el serial del
-     * original a la vista permite reconocer de qué plantilla proviene.</p>
-     *
-     * @param original dron del que se toman los datos.
-     */
-    protected Dron(Dron original) {
-        this.serial = original.serial;
-        this.modelo = original.modelo;
-        this.fabricante = original.fabricante;
-        this.peso = original.peso;
-
-        for (Sensor sensor : original.sensores) {
-            this.sensores.add(new Sensor(sensor));
-        }
     }
 
     // ------------------------------------------------------------------

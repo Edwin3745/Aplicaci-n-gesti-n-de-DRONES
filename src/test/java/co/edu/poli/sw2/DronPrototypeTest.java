@@ -8,6 +8,7 @@ import co.edu.poli.sw2.modelo.Vigilancia;
 import co.edu.poli.sw2.servicios.AgriculturaFactory;
 import co.edu.poli.sw2.servicios.DronPrototypeManager;
 import co.edu.poli.sw2.servicios.VigilanciaFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,50 +16,84 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Pruebas del patrón Prototype.
  *
- * <p>Lo que se verifica no es que la copia exista, sino que sea de verdad
- * independiente: que modificarla no toque al original, empezando por la lista
- * de sensores, que es donde una copia superficial se delata.</p>
+ * <p>La copia la realiza {@link DronPrototypeManager}, en la capa de servicios:
+ * el modelo no participa en el patrón. Lo que se verifica no es que la copia
+ * exista, sino que sea de verdad independiente, empezando por la lista de
+ * sensores, que es donde una copia superficial se delata.</p>
  */
 class DronPrototypeTest {
+
+    private DronPrototypeManager manager;
+
+    @BeforeEach
+    void prepararManager() {
+        manager = new DronPrototypeManager();
+    }
+
+    // ------------------------------------------------------------------
+    // El modelo permanece ajeno al patrón
+    // ------------------------------------------------------------------
+
+    @Test
+    void elModelo_noDebeConocerElPatronPrototype() throws Exception {
+        // El requisito es explícito: la lógica de copia vive en servicios, no
+        // en el dominio. Esta prueba falla si alguien vuelve a añadir copiar()
+        // o un constructor copia a las clases del modelo.
+        assertThrows(NoSuchMethodException.class,
+                () -> Dron.class.getMethod("copiar"),
+                "Dron no debe exponer un método copiar()");
+        assertThrows(NoSuchMethodException.class,
+                () -> Agricultura.class.getDeclaredConstructor(Agricultura.class),
+                "Agricultura no debe tener constructor copia");
+        assertThrows(NoSuchMethodException.class,
+                () -> Vigilancia.class.getDeclaredConstructor(Vigilancia.class),
+                "Vigilancia no debe tener constructor copia");
+        assertThrows(NoSuchMethodException.class,
+                () -> Sensor.class.getDeclaredConstructor(Sensor.class),
+                "Sensor no debe tener constructor copia");
+
+        assertEquals(0, Dron.class.getInterfaces().length,
+                "Dron no debe implementar ninguna interfaz de clonación");
+    }
 
     // ------------------------------------------------------------------
     // La copia conserva el subtipo y sus datos
     // ------------------------------------------------------------------
 
     @Test
-    void copiar_debeDevolverLaMismaClaseConcreta() {
+    void clonar_debeDevolverLaMismaClaseConcreta() {
         Agricultura agricola = AgriculturaFactory.crearDron(1, "AGR-P01",
                 "Agras T40", "DJI", 38.0, 40.0);
         Vigilancia vigilante = VigilanciaFactory.crearDron(2, "VIG-P01",
                 "Matrice 30T", "DJI", 3.7, true);
 
-        assertInstanceOf(Agricultura.class, agricola.copiar(),
+        assertInstanceOf(Agricultura.class, manager.clonar(agricola),
                 "Clonar un dron de agricultura debe producir otro de agricultura");
-        assertInstanceOf(Vigilancia.class, vigilante.copiar(),
+        assertInstanceOf(Vigilancia.class, manager.clonar(vigilante),
                 "Clonar un dron de vigilancia debe producir otro de vigilancia");
     }
 
     @Test
-    void copiar_debeConservarLosDatosYLosAtributosDelSubtipo() {
+    void clonar_debeConservarLosDatosYLosAtributosDelSubtipo() {
         Agricultura original = AgriculturaFactory.crearDron(1, "AGR-P02",
                 "Agras T40", "DJI", 38.0, 40.0);
 
-        Agricultura copia = original.copiar();
+        Dron copia = manager.clonar(original);
 
         assertEquals("AGR-P02", copia.getSerial());
         assertEquals("Agras T40", copia.getModelo());
         assertEquals("DJI", copia.getFabricante());
         assertEquals(38.0, copia.getPeso());
-        assertEquals(40.0, copia.getCapacidadTanque(),
+        assertEquals(40.0, ((Agricultura) copia).getCapacidadTanque(),
                 "El atributo propio del subtipo debe viajar en la copia");
     }
 
     @Test
-    void copiar_noDebeArrastrarElIdDelOriginal() {
+    void clonar_noDebeArrastrarElIdDelOriginal() {
         Vigilancia original = VigilanciaFactory.crearDron(77, "VIG-P02",
                 "Anafi", "Parrot", 0.5, false);
 
-        Vigilancia copia = original.copiar();
+        Dron copia = manager.clonar(original);
 
         assertEquals(77, original.getId(), "El original conserva su id");
         assertEquals(0, copia.getId(),
@@ -67,13 +102,13 @@ class DronPrototypeTest {
     }
 
     @Test
-    void copiar_noDebeRobarleElPilotoAlOriginal() {
+    void clonar_noDebeRobarleElPilotoAlOriginal() {
         Vigilancia original = VigilanciaFactory.crearDron(5, "VIG-P03",
                 "Anafi", "Parrot", 0.5, true);
         Piloto piloto = new Piloto(1, "Ana Restrepo", "LIC-0001", "3001234567");
         piloto.asignarDron(original);
 
-        Vigilancia copia = original.copiar();
+        Dron copia = manager.clonar(original);
 
         assertFalse(copia.tienePilotoAsignado(),
                 "La copia debe nacer sin piloto: la columna piloto_id es única");
@@ -88,12 +123,25 @@ class DronPrototypeTest {
     // ------------------------------------------------------------------
 
     @Test
+    void clonar_debeProducirUnObjetoDistintoEnMemoria() {
+        Agricultura original = AgriculturaFactory.crearDron(1, "AGR-P06",
+                "Agras T40", "DJI", 38.0, 40.0);
+
+        Dron copia = manager.clonar(original);
+
+        assertNotSame(original, copia,
+                "El clon es otro objeto: original == copia debe ser false");
+        assertNotEquals(System.identityHashCode(original), System.identityHashCode(copia),
+                "Las identidades en memoria deben ser distintas");
+    }
+
+    @Test
     void modificarLaListaDeSensoresDelClon_noDebeAfectarAlOriginal() {
         Agricultura original = AgriculturaFactory.crearDron(1, "AGR-P03",
                 "Agras T40", "DJI", 38.0, 40.0);
         original.agregarSensor(new Sensor(1, "multiespectral", "MicaSense"));
 
-        Agricultura copia = original.copiar();
+        Dron copia = manager.clonar(original);
         copia.agregarSensor(new Sensor(2, "LiDAR", "Velodyne"));
 
         assertEquals(1, original.getSensores().size(),
@@ -109,12 +157,14 @@ class DronPrototypeTest {
                 "Agras T40", "DJI", 38.0, 40.0);
         original.agregarSensor(new Sensor(1, "multiespectral", "MicaSense"));
 
-        Agricultura copia = original.copiar();
+        Dron copia = manager.clonar(original);
         copia.getSensores().get(0).setFabricante("OtroFabricante");
 
         assertEquals("MicaSense", original.getSensores().get(0).getFabricante(),
                 "Los sensores también se duplican: un sensor es una pieza física "
                 + "montada en un dron concreto, no algo que dos drones compartan");
+        assertNotSame(original.getSensores().get(0), copia.getSensores().get(0),
+                "Cada sensor de la copia debe ser un objeto nuevo");
     }
 
     @Test
@@ -122,16 +172,22 @@ class DronPrototypeTest {
         Agricultura original = AgriculturaFactory.crearDron(1, "AGR-P05",
                 "Agras T40", "DJI", 38.0, 40.0);
 
-        Agricultura copia = original.copiar();
+        Dron copia = manager.clonar(original);
         copia.setSerial("AGR-NUEVO");
         copia.setModelo("Agras T50");
         copia.setPeso(45.0);
-        copia.setCapacidadTanque(50.0);
+        ((Agricultura) copia).setCapacidadTanque(50.0);
 
         assertEquals("AGR-P05", original.getSerial());
         assertEquals("Agras T40", original.getModelo());
         assertEquals(38.0, original.getPeso());
         assertEquals(40.0, original.getCapacidadTanque());
+    }
+
+    @Test
+    void clonar_conDronNulo_debeFallar() {
+        assertThrows(IllegalArgumentException.class, () -> manager.clonar(null),
+                "No se puede copiar un dron inexistente");
     }
 
     // ------------------------------------------------------------------
@@ -140,7 +196,6 @@ class DronPrototypeTest {
 
     @Test
     void obtenerClon_debeDevolverUnObjetoDistintoDelPrototipo() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         manager.registrar("fumigador estándar", AgriculturaFactory.crearDron(
                 0, "AGR-BASE", "Agras T40", "DJI", 38.0, 40.0));
 
@@ -155,7 +210,6 @@ class DronPrototypeTest {
 
     @Test
     void modificarUnClon_noDebeContaminarElPrototipoRegistrado() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         manager.registrar("vigilancia nocturna", VigilanciaFactory.crearDron(
                 0, "VIG-BASE", "Matrice 30T", "DJI", 3.7, true));
 
@@ -173,7 +227,6 @@ class DronPrototypeTest {
 
     @Test
     void registrar_debeGuardarUnaCopiaYNoElObjetoRecibido() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         Agricultura base = AgriculturaFactory.crearDron(
                 0, "AGR-BASE", "Agras T40", "DJI", 38.0, 40.0);
 
@@ -187,8 +240,6 @@ class DronPrototypeTest {
 
     @Test
     void obtenerClon_conClaveDesconocida_debeFallarConMensajeClaro() {
-        DronPrototypeManager manager = new DronPrototypeManager();
-
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> manager.obtenerClon("no existe"));
 
@@ -198,7 +249,6 @@ class DronPrototypeTest {
 
     @Test
     void eliminar_debeQuitarLaPlantillaDelRegistro() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         manager.registrar("temporal", VigilanciaFactory.crearDron(
                 0, "VIG-TMP", "Anafi", "Parrot", 0.5, false));
 
@@ -211,7 +261,6 @@ class DronPrototypeTest {
 
     @Test
     void registrar_conDatosInvalidos_debeFallar() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         Agricultura base = AgriculturaFactory.crearDron(
                 0, "AGR-BASE", "Agras T40", "DJI", 38.0, 40.0);
 
@@ -225,7 +274,6 @@ class DronPrototypeTest {
 
     @Test
     void nombresRegistrados_debeConservarElOrdenDeRegistro() {
-        DronPrototypeManager manager = new DronPrototypeManager();
         manager.registrar("fumigador estándar", AgriculturaFactory.crearDron(
                 0, "AGR-BASE", "Agras T40", "DJI", 38.0, 40.0));
         manager.registrar("vigilancia nocturna", VigilanciaFactory.crearDron(

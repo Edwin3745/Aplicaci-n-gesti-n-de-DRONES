@@ -38,20 +38,6 @@ public class Sensor {
     }
 
     /**
-     * Constructor copia, usado al clonar un dron.
-     *
-     * <p>El identificador no se copia: la pieza duplicada es otro sensor y
-     * recibirá su propio id al guardarse. Como los demás atributos son cadenas
-     * inmutables, basta con reasignarlos para que la copia sea independiente.</p>
-     *
-     * @param original sensor del que se toman los datos.
-     */
-    public Sensor(Sensor original) {
-        this.tipo = original.tipo;
-        this.fabricante = original.fabricante;
-    }
-
-    /**
      * Obtiene el identificador del sensor.
      *
      * @return identificador del sensor.
