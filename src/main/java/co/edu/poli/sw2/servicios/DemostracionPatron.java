@@ -1,6 +1,6 @@
 package co.edu.poli.sw2.servicios;
 
-import co.edu.poli.sw2.modelo.Dron;
+import co.edu.poli.sw2.Modelo.Dron;
 
 /**
  * Resultado de ejecutar la demostración de un patrón de creación.

@@ -1,7 +1,7 @@
 package co.edu.poli.sw2.servicios;
 
-import co.edu.poli.sw2.modelo.Dron;
-import co.edu.poli.sw2.modelo.Sensor;
+import co.edu.poli.sw2.Modelo.Dron;
+import co.edu.poli.sw2.Modelo.Sensor;
 
 import java.util.List;
 

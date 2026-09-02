@@ -1,7 +1,7 @@
 package co.edu.poli.sw2.Controlador;
 
-import co.edu.poli.sw2.modelo.Dron;
-import co.edu.poli.sw2.modelo.TipoDron;
+import co.edu.poli.sw2.Modelo.Dron;
+import co.edu.poli.sw2.Modelo.TipoDron;
 import co.edu.poli.sw2.servicios.DemostracionPatron;
 import co.edu.poli.sw2.servicios.DronBuilder;
 import co.edu.poli.sw2.servicios.DronDAOImpl;

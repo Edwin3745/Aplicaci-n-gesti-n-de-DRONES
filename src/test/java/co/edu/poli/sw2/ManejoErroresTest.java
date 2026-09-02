@@ -2,7 +2,7 @@ package co.edu.poli.sw2;
 
 import co.edu.poli.sw2.Controlador.DronControlador;
 import co.edu.poli.sw2.Controlador.OperacionFallidaException;
-import co.edu.poli.sw2.modelo.TipoDron;
+import co.edu.poli.sw2.Modelo.TipoDron;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

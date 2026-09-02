@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.modelo;
+package co.edu.poli.sw2.Modelo;
 
 /**
  * Representa al operador responsable de dirigir un dron dentro del sistema.

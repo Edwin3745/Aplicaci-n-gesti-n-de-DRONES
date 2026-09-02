@@ -1,6 +1,6 @@
 package co.edu.poli.sw2.servicios;
 
-import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.Modelo.Vigilancia;
 
 /**
  * Fábrica del subtipo {@link Vigilancia}.

@@ -1,9 +1,9 @@
 package co.edu.poli.sw2;
 
-import co.edu.poli.sw2.modelo.Agricultura;
-import co.edu.poli.sw2.modelo.Dron;
-import co.edu.poli.sw2.modelo.TipoDron;
-import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.Modelo.Agricultura;
+import co.edu.poli.sw2.Modelo.Dron;
+import co.edu.poli.sw2.Modelo.TipoDron;
+import co.edu.poli.sw2.Modelo.Vigilancia;
 import co.edu.poli.sw2.servicios.DronBuilder;
 import org.junit.jupiter.api.Test;
 
