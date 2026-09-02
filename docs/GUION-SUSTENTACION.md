@@ -17,16 +17,17 @@ El corazón del dominio. Qué señalar:
 - Es **abstracta**: en el mundo real no existe "un dron" a secas, existe uno de agricultura o uno de vigilancia.
 - Dos métodos abstractos: `getTipo()` y `descripcionOperativa()`. El primero es la clave de la persistencia; el segundo, el ejemplo de polimorfismo puro.
 - `sensores` es `private final` y `getSensores()` devuelve una vista no modificable. La composición está encapsulada: solo se puede tocar con `agregarSensor` y `removerSensor`.
-- `setPiloto()` tiene **visibilidad de paquete** a propósito: la relación bidireccional solo se altera desde `Piloto.asignarDron()`, que mantiene los dos extremos sincronizados.
-- El **constructor copia** y sus tres decisiones documentadas (id, piloto, sensores). Es la base del Prototype; conviene leer ese Javadoc en voz alta.
+- `setPiloto()` tiene **visibilidad de paquete** a propósito: la relación bidireccional solo se altera desde `Piloto.asignarDron()`, que mantiene los dos extremos sincronizados. Como efecto secundario, la capa de servicios no puede asignar piloto — y por eso un clon nunca puede robárselo al original.
+- **Lo que NO hay aquí:** ni `implements Prototipo`, ni `copiar()`, ni constructor copia. El modelo no participa en ningún patrón. Merece señalarse explícitamente, porque es una decisión, no un olvido.
 
 ### 2.º — `modelo/Agricultura.java` y `modelo/Vigilancia.java`
 
 Cortas, se ven de un vistazo. Cada una:
 - declara su atributo propio,
 - implementa `getTipo()` devolviendo su constante,
-- implementa `descripcionOperativa()` con su propio texto,
-- implementa `copiar()` **devolviendo su propio tipo**, no `Dron`. Eso es retorno covariante y merece señalarse.
+- implementa `descripcionOperativa()` con su propio texto.
+
+Y nada más: son clases de dominio puro, sin lógica de patrones.
 
 ### 3.º — `modelo/TipoDron.java`
 
@@ -57,18 +58,34 @@ Empezar por el ejemplo de uso del Javadoc de la clase, luego `build()`: primero 
 
 ### 8.º — `servicios/DronPrototypeManager.java`
 
-Señalar que **copia en las dos direcciones**: al registrar guarda una copia y al entregar devuelve otra. Nadie puede contaminar la plantilla.
+La pieza que más preguntas va a atraer. Qué señalar, en este orden:
 
-### 9.º — `Controlador/DronControlador.java`
+- `clonar(Dron)`: el método público que copia cualquier dron. Su Javadoc lista qué se copia y qué no, con el motivo de cada decisión.
+- El bucle de sensores: lista nueva **y** un `Sensor` nuevo por cada uno. Ahí está la copia profunda.
+- `copiarAtributos()`: el **único** punto del proyecto que distingue subtipo al copiar, con el `switch` exhaustivo. Su Javadoc explica por qué es inevitable habiendo sacado el patrón del modelo.
+- Que **copia en las dos direcciones**: al registrar guarda una copia y al entregar devuelve otra. Nadie puede contaminar la plantilla.
+
+### 9.º — `servicios/InformeDeIdentidad.java`
+
+La evidencia que se ve en pantalla. Señalar el uso de `System.identityHashCode` y, sobre todo, el Javadoc que explica la trampa del envoltorio de `getSensores()` — ver §10.
+
+### 10.º — `Controlador/DronControlador.java`
 
 Donde todo se junta:
 - `registrarDron()` arma el dron con el Builder;
 - `registrarPlantillasBase()` **usa el Builder para construir lo que el Prototype va a clonar** — los dos patrones colaborando;
+- `clonarDron()` y `construirConBuilder()`: lo que ejecutan los dos botones de demostración;
 - `traducir()`: la conversión de fallo técnico a mensaje de usuario.
 
-### 10.º — `Vista/DronVista.java` y el FXML
+### 11.º — `Vista/DronVista.java` y el FXML
 
-Cerrar por donde entra el usuario: el selector de tipo que muestra y oculta campos, el selector de configuración base y el botón "Usar", y `mostrarAlerta()` como único punto de salida de errores.
+Cerrar por donde entra el usuario: el selector de tipo que muestra y oculta campos, el selector de configuración base, los botones "Clonar" y "Builder" con el área de evidencia, y `mostrarAlerta()` como único punto de salida de errores.
+
+Detalle que conviene señalar: el botón "Clonar" no comprueba si hay selección al pulsarse — está **atado** a ella con `disableProperty().bind(...)`. El usuario no puede llegar a un estado inválido.
+
+### 12.º — Demostración en vivo
+
+Si se puede ejecutar la aplicación, este es el momento: seleccionar un dron, pulsar **Clonar**, y leer el informe en pantalla. Después pulsar **Builder** y mostrar la secuencia de llamadas encadenadas. Es la prueba más directa de que los patrones funcionan.
 
 ---
 
@@ -108,13 +125,25 @@ Porque devolver un tipo abstracto no tiene nada de raro: lo que no se puede es *
 
 **«¿Qué problema resuelve aquí?»**
 
-Que dar de alta drones parecidos obliga a repetir los mismos datos. Con el registro de configuraciones base, el usuario elige "Fumigador estándar", pulsa Usar, cambia el serial y guarda.
+Dos. Primero, que dar de alta drones parecidos obliga a repetir los mismos datos: con las configuraciones base, el usuario elige "Fumigador estándar", pulsa Usar, cambia el serial y guarda. Segundo, duplicar un dron que ya está en la tabla, que es lo que hace el botón "Clonar".
 
-**«¿Por qué una interfaz propia y no `Cloneable`?»**
+**«¿Por qué la copia está en servicios y no en el modelo?»**
 
-La respuesta corta, y es la buena porque es concreta: **`super.clone()` hace copia superficial y el campo `sensores` es `final`**, así que no se puede reasignar la lista copiada. Habría que quitarle el `final` a un campo que hoy protege la composición.
+Porque copiarse a sí mismo no es una responsabilidad del dominio, sino de la capa que gestiona la creación de objetos. Un `Dron` representa un dron: sus datos y sus reglas de negocio. Saber duplicarse para que la interfaz ofrezca un botón es infraestructura.
 
-Y hay tres razones más: `Cloneable` no declara ningún método, así que no sirve como contrato; `clone()` es `protected` y devuelve `Object`; y lanza una excepción comprobada que aquí nunca puede ocurrir.
+Conviene ser honesto en la sustentación: **la primera versión sí lo tenía en el modelo**, con una interfaz `Prototipo` y constructores copia. Técnicamente era más elegante —cada subclase se copiaba a sí misma, con retorno covariante y sin un solo `instanceof`—. Se movió porque el criterio de separación de capas pesa más que la elegancia de una llamada polimórfica.
+
+**«¿Y no se pierde nada al moverlo?»**
+
+Sí, y hay que decirlo: se pierde el polimorfismo de la copia. Como el modelo ya no ofrece un `copiar()`, el servicio tiene que preguntar por el subtipo, porque `capacidadTanque` no tiene equivalente en `Vigilancia` ni `deteccionTermica` en `Agricultura`. Ese `switch` está **confinado a un único método privado**, `copiarAtributos()`, y es exhaustivo sobre el enum: si mañana hay un tercer subtipo, el proyecto no compila hasta cubrirlo.
+
+**«¿Y por qué no `Cloneable`?»**
+
+Porque exigiría tocar el modelo, que es justo lo que se ha evitado. Y aunque no fuera así, tiene un problema concreto: **`super.clone()` hace copia superficial y el campo `sensores` es `final`**, así que no se puede reasignar la lista copiada. Habría que quitarle el `final` a un campo que protege la composición. Además `Cloneable` no declara ningún método, así que no sirve como contrato; `clone()` es `protected` y devuelve `Object`; y lanza una excepción comprobada que aquí nunca puede ocurrir.
+
+**«¿Cómo garantizan que el clon no le roba el piloto al original?»**
+
+Por diseño del lenguaje, no por disciplina: `Dron.setPiloto()` tiene visibilidad de paquete, así que `DronPrototypeManager`, que vive en `servicios`, **no puede invocarlo aunque quisiera**. El clon nace sin piloto necesariamente.
 
 ### 2.5 DAO — `GenericDAO` / `DronDAOImpl`
 
@@ -214,13 +243,16 @@ La base **no permite** una fila incoherente. Un dron de agricultura con detecci�
 
 ## 6. Dónde hay `instanceof` y por qué no contradice el polimorfismo
 
-Hay **tres** usos, y conviene tenerlos localizados:
+Hay **tres** usos de `instanceof` más un `switch` con cast, y conviene tenerlos localizados:
 
-| Dónde | Para qué |
-|---|---|
-| `DronDAOImpl.asignarAtributosEspecificos()` | Saber qué columna específica rellenar. |
-| `DronVista.cargarEnFormulario()` | Saber qué campo del formulario mostrar. |
-| `DronVista.actualizarDronSeleccionado()` | Saber qué campo leer al guardar. |
+| Dónde | Forma | Para qué |
+|---|---|---|
+| `DronDAOImpl.asignarAtributosEspecificos()` | `instanceof` | Saber qué columna específica rellenar. |
+| `DronVista.cargarEnFormulario()` | `instanceof` | Saber qué campo del formulario mostrar. |
+| `DronVista.actualizarDronSeleccionado()` | `instanceof` | Saber qué campo leer al guardar. |
+| `DronPrototypeManager.copiarAtributos()` | `switch` + cast | Saber qué atributo propio copiar. |
+
+(Hay otros dos `instanceof` en el proyecto, en `Dron.equals()` y en `ServicioException`, pero no distinguen subtipos de dron: comprueban tipos para comparar y para extraer un código SQL.)
 
 **La respuesta.** El polimorfismo resuelve el caso en el que **todos los subtipos responden a la misma pregunta de forma distinta**. `descripcionOperativa()` es eso: se recorre la colección y cada dron contesta lo suyo, sin preguntar por su clase. Igual `getTipo()`, que es lo que permite al DAO escribir el discriminador sin inspeccionar nada.
 
@@ -230,7 +262,7 @@ Pero los tres puntos de la tabla no son ese caso: ahí los subtipos **no tienen 
 
 Sí, y conviene decir cómo y por qué no se hizo. Se podría dar a `Dron` un método `escribirseEn(PreparedStatement)`, y cada subclase escribiría sus columnas. Se elimina el `instanceof`, pero a cambio **el modelo pasaría a conocer JDBC**, que es justo lo que la capa DAO existe para evitar. El `instanceof` está confinado a un método privado de la capa que ya conoce la base de datos; el intercambio no compensa.
 
-Frase para cerrar: *tres `instanceof`, los tres en el borde del sistema —donde se traduce a SQL y a formulario—, ninguno en el dominio.*
+Frase para cerrar: *cuatro puntos distinguen subtipo, todos en el borde del sistema —donde se traduce a SQL, a formulario o a copia—, ninguno en el dominio.*
 
 ---
 
@@ -305,6 +337,39 @@ Esta es la pregunta importante y conviene responderla sin defenderse:
 
 ---
 
+## 8 bis. La evidencia en pantalla
+
+Es lo que el evaluador va a mirar primero, así que conviene dominarlo.
+
+**«¿Por qué `System.identityHashCode` y no `hashCode()`?»**
+
+Porque `Dron` **sobrescribe** `hashCode()` a partir del id de negocio. Dos objetos distintos con el mismo id devuelven el mismo valor, así que no sirve para demostrar que son objetos separados — que es justo lo que queremos demostrar. `identityHashCode` devuelve la identidad que la JVM asigna a cada objeto, independientemente de lo que la clase haya sobrescrito. Hay una prueba que lo verifica: construye dos drones con el mismo id, comprueba que `hashCode()` los da iguales, y que el informe no se apoya en él.
+
+**«¿Es esa la dirección de memoria real?»**
+
+No exactamente, y conviene no afirmarlo. Es el *identity hash code*: un valor que la JVM asocia a cada objeto y que se comporta como su identidad. En la práctica sirve para lo que aquí se necesita —dos objetos distintos dan valores distintos—, pero no es un puntero: el recolector de basura puede mover el objeto en memoria y este valor no cambia.
+
+**«¿Qué demuestra cada línea del informe?»**
+
+- `identityHashCode` distinto → la JVM les dio identidades separadas: son dos objetos, no dos nombres del mismo.
+- `original == copia -> false` → lo mismo, comparando referencias en vez de contenido.
+- `original.equals(copia)` → compara el **id de negocio**, no la memoria. Da `false` porque el clon nace sin id, esperando el que le asigne PostgreSQL. Es un buen momento para explicar la diferencia entre identidad de objeto e identidad de negocio.
+- El recuento de sensores → demuestra que la copia es profunda.
+
+**«La línea de las listas de sensores, ¿qué prueba?»**
+
+Aquí la respuesta honesta suma puntos: **por sí sola, nada**, y el propio informe lo advierte en pantalla.
+
+`getSensores()` devuelve la lista envuelta con `Collections.unmodifiableList()`, y ese envoltorio **se crea en cada llamada**. Dos vistas de la *misma* lista ya dan identidades distintas, así que esa línea saldría igual aunque la copia fuera superficial. Se imprime porque el enunciado la pide, con la advertencia al lado.
+
+**Lo que sí demuestra la copia profunda** es la comprobación de debajo: se agrega un sensor **solo al clon** y se muestran los recuentos de ambas listas. Si se compartieran, el original también crecería. El sensor de prueba se retira después, así que ninguno de los dos drones queda alterado — y hay una prueba que lo verifica.
+
+**«¿Por qué en un TextArea y no en consola?»**
+
+Porque la consola no forma parte de la aplicación: quien la usa no la ve. Una evidencia que hay que ir a buscar al terminal no es evidencia para el usuario. Además, el texto lo redacta la capa de servicios (`InformeDeIdentidad`), lo que permite **probar su contenido sin levantar JavaFX**: hay ocho pruebas sobre él.
+
+---
+
 ## 9. Preguntas incómodas
 
 **«¿Por qué una tabla única y no una por subclase?»**
@@ -315,15 +380,15 @@ Ver §5. Resumen: con dos subtipos, tres atributos propios y "listar toda la flo
 
 Conviene contestar en orden, porque demuestra que se conoce el sistema:
 
-1. `modelo/` — la clase nueva, extendiendo `Dron`, con `getTipo()`, `descripcionOperativa()`, constructor copia y `copiar()`.
+1. `modelo/` — la clase nueva, extendiendo `Dron`, con `getTipo()` y `descripcionOperativa()`. Nada más: el modelo no lleva lógica de patrones.
 2. `TipoDron` — la constante nueva con su código.
 3. `servicios/` — su fábrica.
-4. `DronBuilder.build()` y `DronDAOImpl.mapearDron()` — el caso nuevo en cada `switch`.
+4. `DronBuilder.build()`, `DronDAOImpl.mapearDron()` y `DronPrototypeManager.copiarAtributos()` — el caso nuevo en cada `switch`.
 5. `DronDAOImpl.asignarAtributosEspecificos()` — su rama.
 6. `db/schema.sql` — la columna propia, el código nuevo en `chk_dron_tipo` y la rama en `chk_dron_atributos_por_tipo`.
 7. `DronVista` — mostrar y leer su campo.
 
-**El detalle que conviene añadir:** los pasos 4 y 5 **no hay que recordarlos**. Los `switch` sobre `TipoDron` son expresiones exhaustivas, así que en cuanto se añade la constante **el proyecto deja de compilar** hasta cubrir el caso nuevo. El compilador hace de lista de tareas.
+**El detalle que conviene añadir:** el paso 4 **no hay que recordarlo**. Los tres `switch` sobre `TipoDron` son expresiones exhaustivas, así que en cuanto se añade la constante **el proyecto deja de compilar** hasta cubrir el caso nuevo en los tres sitios. El compilador hace de lista de tareas.
 
 *(Si preguntan por qué no se usa despacho polimórfico en vez de `switch`: ver §6.)*
 
@@ -367,7 +432,17 @@ Hay una prueba que lo comprueba, y además **se verificó que la prueba funciona
 
 **«¿Por qué el clon conserva el serial, si es único en la base?»**
 
-Es una decisión de dos niveles. El **modelo** copia el serial porque es un dato del dron y permite reconocer de qué plantilla proviene. La **vista** lo borra al precargar el formulario, porque es único y debe escribirlo quien da el alta. Si el modelo lo dejara en `null`, se estaría metiendo una regla de presentación en el dominio.
+Es una decisión de dos niveles. El **servicio** copia el serial porque es un dato del dron y permite reconocer de qué dron proviene la copia. La **vista** lo borra al cargar el formulario, porque es único y debe escribirlo quien da el alta. Si el servicio lo dejara en `null`, se estaría metiendo una regla de presentación en la capa equivocada.
+
+**«Tienen un `switch` sobre el tipo dentro del Prototype. ¿No es eso lo que los patrones deberían evitar?»**
+
+Sí, y es el precio consciente de sacar la copia del modelo. Con `copiar()` en las subclases no haría falta ningún `switch`: cada dron se copiaría a sí mismo. Al mover el patrón a servicios, la capa pierde el acceso polimórfico a los atributos que solo existen en una subclase.
+
+Tres cosas acotan el daño: está en **un solo método privado**, es **exhaustivo sobre el enum** —así que el compilador exige el caso nuevo si aparece un tercer subtipo—, y la construcción se **delega en las fábricas**, de modo que ni siquiera ahí se llama a un constructor del modelo.
+
+**«¿Cómo evitan que alguien vuelva a meter la lógica de copia en el modelo?»**
+
+Con una prueba. `elModelo_noDebeConocerElPatronPrototype` usa reflexión para comprobar que `Dron` no expone `copiar()`, que ninguna clase del modelo tiene constructor copia y que `Dron` no implementa ninguna interfaz. Si alguien lo reintroduce, la compilación pasa pero **la prueba falla**. El requisito quedó convertido en una verificación automática en vez de en una nota en un documento.
 
 **«¿Por qué `Vista` y `Controlador` siguen con mayúscula si renombraron los otros?»**
 

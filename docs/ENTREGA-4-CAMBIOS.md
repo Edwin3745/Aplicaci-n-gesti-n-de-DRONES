@@ -13,9 +13,13 @@ La estructura se reorganizó: los paquetes `Modelo` y `Servicio` pasaron a `mode
 
 `ConexionBD` cambió de diseño: el Singleton ya no entrega una conexión nueva por llamada, sino que mantiene una única `Connection` compartida. Con ello, los DAO dejaron de cerrarla y `MainApp.stop()` pasó a ser el único punto que lo hace.
 
-Se implementaron tres patrones. La factoría única se dividió en `AgriculturaFactory` y `VigilanciaFactory`, una por subtipo. `DronBuilder` construye drones paso a paso, validando antes de instanciar, y lo usa el controlador en cada alta desde el formulario. `DronPrototypeManager` guarda configuraciones base —"Fumigador estándar", "Vigilancia nocturna"— de las que el usuario puede partir con un botón en la interfaz.
+Se implementaron tres patrones, **todos ellos alojados en `servicios`**. La factoría única se dividió en `AgriculturaFactory` y `VigilanciaFactory`, una por subtipo. `DronBuilder` construye drones paso a paso, validando antes de instanciar, y lo usa el controlador en cada alta desde el formulario. `DronPrototypeManager` copia drones y guarda configuraciones base —"Fumigador estándar", "Vigilancia nocturna"— de las que el usuario puede partir.
 
-Las pruebas pasaron de 18 a 50, y `mvn javadoc:javadoc` de 67 avisos a ninguno. Por el camino se corrigió un error que impedía montar la base de datos desde cero.
+**El paquete `modelo` no participa en ningún patrón.** Una primera versión daba a `Dron` una interfaz `Prototipo` y constructores copia; se retiró por completo para que el dominio quede libre de responsabilidades de infraestructura. Comparado con su estado previo al Prototype, el modelo solo difiere hoy en el Javadoc.
+
+La interfaz suma dos botones de demostración, "Clonar" y "Builder", que escriben su evidencia en un `TextArea` de solo lectura —nunca en consola—, con las identidades de memoria de original y copia.
+
+Las pruebas pasaron de 18 a 65, y `mvn javadoc:javadoc` de 67 avisos a ninguno. Por el camino se corrigió un error que impedía montar la base de datos desde cero.
 
 ---
 
@@ -28,10 +32,12 @@ Las pruebas pasaron de 18 a 50, y `mvn javadoc:javadoc` de 67 avisos a ninguno. 
 | `servicios/AgriculturaFactory.java` | Fábrica del subtipo Agricultura, según el diagrama. |
 | `servicios/VigilanciaFactory.java` | Fábrica del subtipo Vigilancia, según el diagrama. |
 | `servicios/DronBuilder.java` | Patrón Builder: construcción paso a paso con validación. |
-| `servicios/DronPrototypeManager.java` | Patrón Prototype: registro de configuraciones base. |
-| `modelo/Prototipo.java` | Contrato de copia que implementa `Dron`. |
+| `servicios/DronPrototypeManager.java` | Patrón Prototype: copia de drones y registro de configuraciones base. |
+| `servicios/InformeDeIdentidad.java` | Redacta la evidencia que los botones vuelcan en el `TextArea`. |
+| `servicios/DemostracionPatron.java` | Record que devuelve a la vista el objeto producido y su informe. |
 | `test/DronBuilderTest.java` | 14 pruebas del Builder. |
-| `test/DronPrototypeTest.java` | 14 pruebas del Prototype, incluida la de copia superficial. |
+| `test/DronPrototypeTest.java` | 17 pruebas del Prototype, incluida la de copia superficial. |
+| `test/InformeDeIdentidadTest.java` | 8 pruebas del contenido de los informes, sin levantar JavaFX. |
 | `test/FlujoCrudDronTest.java` | Encadena altas, actualización y bajas reales para detectar un cierre indebido de la conexión. |
 | `docs/ENTREGA-4-CAMBIOS.md` | Este reporte. |
 | `docs/GUION-SUSTENTACION.md` | Guion de sustentación. |
@@ -42,15 +48,13 @@ Las pruebas pasaron de 18 a 50, y `mvn javadoc:javadoc` de 67 avisos a ninguno. 
 |---|---|
 | `servicios/ConexionBD.java` | Pasa a mantener una única `Connection` compartida: `getConexion()`, `cerrarConexion()`. Se elimina `abrirConexion()` y `getUrlSegura()`, sin uso. |
 | `servicios/DronDAOImpl.java` | La `Connection` sale del try-with-resources; `mapearDron()` usa las fábricas por subtipo. |
-| `Controlador/DronControlador.java` | Construye con el Builder al registrar; registra y sirve las configuraciones base. |
-| `Vista/DronVista.java` | Selector de configuración base y acción `usarPlantilla()`. |
-| `Vista/DrownView.fxml` | ComboBox de plantillas, botón "Usar" y separador. |
+| `Controlador/DronControlador.java` | Construye con el Builder al registrar; sirve las configuraciones base; expone `clonarDron()` y `construirConBuilder()` para los botones de demostración. |
+| `Vista/DronVista.java` | Selector de configuración base, botones "Clonar" y "Builder", y el área de evidencia. |
+| `Vista/DrownView.fxml` | ComboBox de plantillas, botones de demostración y `TextArea` de evidencia. |
+| `Vista/styles.css` | Estilos del área de evidencia (monoespaciada) y de los botones deshabilitados. |
 | `MainApp.java` | Sobrescribe `stop()` para cerrar la conexión al terminar. |
 | `Main.java` | Javadoc; explicación de por qué existe como lanzador aparte. |
-| `modelo/Dron.java` | Implementa `Prototipo`; constructor copia; Javadoc completo. |
-| `modelo/Agricultura.java`, `modelo/Vigilancia.java` | Constructor copia y `copiar()` con retorno covariante. |
-| `modelo/Sensor.java` | Constructor copia (la copia de un dron duplica sus sensores) y Javadoc. |
-| `modelo/Mision.java`, `modelo/Piloto.java`, `modelo/TipoDron.java` | Javadoc completo. |
+| `modelo/*.java` | **Solo Javadoc.** Ningún cambio estructural respecto al estado previo al Prototype. |
 | `servicios/ServicioException.java`, `Controlador/OperacionFallidaException.java` | Javadoc completo. |
 | `test/ConexionBDTest.java` | Reescrito: verifica reutilización y restablecimiento. |
 | `test/FactoriasDronTest.java` | Antes `DronFactoryTest`; cubre las dos fábricas nuevas. |
@@ -67,6 +71,7 @@ Las pruebas pasaron de 18 a 50, y `mvn javadoc:javadoc` de 67 avisos a ninguno. 
 | `servicios/SensorDAO.java` | Ídem. |
 | `servicios/MisionDAO.java` | Ídem. |
 | `servicios/DronFactory.java` | Sustituida por las dos fábricas por subtipo. |
+| `modelo/Prototipo.java` | El modelo no debe conocer los patrones: la copia se trasladó íntegra a `servicios`. |
 | `test/Daosrestantestest.java` | Única prueba de los tres DAO eliminados. |
 
 Ningún código de producción referenciaba los tres DAO: solo su propio test.
@@ -112,26 +117,52 @@ Validaciones: `tipo`, `serial`, `modelo` y `fabricante` obligatorios y no en bla
 
 **Qué problema resuelve.** Dar de alta drones parecidos obliga a repetir los mismos datos una y otra vez. El Prototype permite registrar configuraciones habituales y partir de una copia.
 
-**Dónde está.**
-- `modelo/Prototipo.java` — interfaz con `Dron copiar()`.
-- `modelo/Dron.java` — constructor copia con las decisiones sobre id, piloto y sensores.
-- `modelo/Agricultura.java` y `modelo/Vigilancia.java` — `copiar()` con retorno covariante.
-- `servicios/DronPrototypeManager.java` — `registrar`, `obtenerClon`, `eliminar` sobre un `LinkedHashMap`.
+**Dónde está.** Íntegramente en `servicios/DronPrototypeManager.java`: `clonar`, `registrar`, `obtenerClon` y `eliminar` sobre un `LinkedHashMap`. **El modelo no participa.**
 
-**Dónde se usa.** `DronControlador` registra al arrancar "Fumigador estándar" y "Vigilancia nocturna", y expone `crearDesdePlantilla()`. La vista añade un selector y un botón "Usar" que precarga el formulario con la copia.
+**Dónde se usa.** `DronControlador` registra al arrancar "Fumigador estándar" y "Vigilancia nocturna", y expone `crearDesdePlantilla()` y `clonarDron()`. La vista tiene un selector con botón "Usar" que precarga el formulario, y un botón "Clonar" que duplica el dron elegido en la tabla.
 
-**Qué se copia y qué no** (documentado en el Javadoc del constructor copia):
+**Qué se copia y qué no** (documentado en el Javadoc de `clonar()`):
 
 | Dato | Decisión | Por qué |
 |---|---|---|
 | `id` | Queda en 0 | El id es la identidad en la base de datos y la copia aún no existe allí. Arrastrarlo haría que actualizar la copia sobrescribiera la fila del original. |
-| `piloto` | Queda sin asignar | La columna `piloto_id` es UNIQUE: un piloto conduce un solo dron. Copiar la referencia le robaría el piloto al original. |
+| `piloto` | Queda sin asignar | La columna `piloto_id` es UNIQUE: un piloto conduce un solo dron. Copiar la referencia le robaría el piloto al original. Ahora el lenguaje lo garantiza: `setPiloto()` tiene visibilidad de paquete y `servicios` no puede invocarlo. |
 | `sensores` | Lista nueva **y** `Sensor` nuevo por cada uno | Un sensor es una pieza física montada en un dron concreto; la tabla `sensor` lo confirma con `ON DELETE CASCADE`. Compartir la lista haría que agregar un sensor al clon se lo agregara al original; compartir los objetos haría que editar un sensor del clon editara el del original. |
 | `serial` | Sí se copia | Es un dato del dron y permite reconocer de qué plantilla proviene. La **vista** lo deja vacío al precargar, porque es único en la base y debe escribirlo quien da el alta. |
 
 **Alternativas descartadas.**
-- *`Cloneable` + `clone()`.* El argumento decisivo es concreto: `super.clone()` produce una copia superficial y repararla exige **reasignar el campo `sensores`, que es `final`**. Habría que quitarle el `final` a un campo que hoy protege la composición. Además, `Cloneable` no declara ningún método —no sirve como contrato—, `clone()` es `protected`, devuelve `Object` y lanza una excepción comprobada que aquí nunca puede ocurrir.
-- *Constructor copia sin interfaz.* El manager guarda `Map<String, Dron>` y necesita copiar sobre la referencia abstracta. Sin método común habría que volver a `instanceof` para elegir constructor, justo donde el polimorfismo basta.
+- *Interfaz `Prototipo` con `copiar()` en el modelo y constructores copia.* **Fue la primera implementación y se retiró.** Era la más elegante en lo técnico —cada subclase se copiaba a sí misma, con retorno covariante y sin un solo `instanceof`—, pero ponía en el dominio una responsabilidad que corresponde a la capa de servicios. El requisito de no tocar el modelo zanja la discusión.
+- *`Cloneable` + `clone()`.* El argumento decisivo es concreto: `super.clone()` produce una copia superficial y repararla exige **reasignar el campo `sensores`, que es `final`**. Habría que quitarle el `final` a un campo que protege la composición. Además, `Cloneable` no declara ningún método —no sirve como contrato—, `clone()` es `protected`, devuelve `Object` y lanza una excepción comprobada que aquí nunca puede ocurrir. Y, en cualquier caso, obligaría a tocar el modelo.
+- *Copiadores polimórficos en servicios* (`interface CopiadorDron` con una implementación por subtipo y un `Map<TipoDron, CopiadorDron>`). Elimina el `switch` por despacho, pero son tres clases que el diagrama no contiene y cada copiador necesita igualmente un cast interno: el `instanceof` no desaparece, solo se reparte.
+
+**El coste de sacarlo del modelo.** Se pierde el polimorfismo de la copia. Como el dominio ya no ofrece un `copiar()`, el servicio tiene que preguntar por el subtipo para leer los atributos que solo existen en una subclase: `capacidadTanque` no tiene equivalente en `Vigilancia`, ni `deteccionTermica` en `Agricultura`. Ese conocimiento está **confinado a un único método privado**, `DronPrototypeManager.copiarAtributos()`, resuelto con un `switch` exhaustivo sobre `TipoDron` para que el compilador exija el caso nuevo si algún día se añade un tercer subtipo. La construcción se delega en las fábricas, de modo que ni siquiera ahí se invoca un constructor del modelo.
+
+### 3.4 Demostración de los patrones en la interfaz
+
+La ventana incorpora, bajo la tabla, un **área de evidencia**: un `TextArea` de solo lectura, con scroll, tipografía monoespaciada y su propio botón "Limpiar evidencia". Dos botones escriben en ella. **Nada se imprime por consola**: no hay un solo `System.out` en la aplicación.
+
+**Botón "Clonar"** — se habilita solo cuando hay una fila seleccionada. El control se hace atando `disableProperty()` a la propiedad de selección de la tabla, en vez de comprobarlo al pulsar: el usuario no puede llegar a un estado inválido. Copia el dron vía `DronPrototypeManager`, lo carga en el formulario con el id y el serial en blanco, y vuelca el informe.
+
+**Botón "Builder"** — construye con `DronBuilder` encadenando llamadas, carga el resultado en el formulario y escribe la secuencia ejecutada con los valores reales. Toma los datos del formulario y completa con valores de muestra los campos vacíos, para que la demostración funcione también con el formulario recién abierto.
+
+**Por qué `System.identityHashCode` y no `hashCode()`.** `Dron` sobrescribe `hashCode()` a partir del id de negocio: dos objetos distintos con el mismo id devuelven el mismo valor, así que no sirve como evidencia de identidad. `identityHashCode` devuelve lo que la JVM asigna a cada objeto. Hay una prueba que lo verifica.
+
+#### Una advertencia sobre la comparación de las listas de sensores
+
+El formato pedido incluye una línea con la identidad de la lista de sensores de cada dron. **Esa comparación no demuestra nada**, y conviene saberlo antes de que lo pregunte el evaluador: `Dron.getSensores()` devuelve la lista envuelta con `Collections.unmodifiableList()`, y ese envoltorio **se construye en cada llamada**. Comprobado:
+
+```
+clase envoltorio : java.util.Collections$UnmodifiableRandomAccessList
+vista 1 : 1dbd16a6
+vista 2 : 251a69d7
+v1 == v2 (misma lista real detrás) -> false
+```
+
+Dos vistas de la **misma** `ArrayList` ya dan identidades distintas. Es decir, esa línea saldría igual aunque la copia fuera superficial. Arreglarlo exigiría cambiar `getSensores()`, que el requisito prohíbe.
+
+**Solución adoptada:** la línea se imprime igualmente, porque el enunciado la pide, pero el informe advierte de que no prueba nada y añade debajo la comprobación que sí lo hace: agrega un sensor **solo al clon** y muestra los recuentos de ambas listas. Si se compartieran, el original también crecería. El sensor de prueba se retira después, de modo que ni el original ni la copia quedan alterados; hay una prueba que lo verifica.
+
+Esta comprobación funciona además cuando el dron no tiene sensores, que es el caso habitual: `DronDAOImpl` no los carga, porque `SensorDAO` se eliminó por no aparecer en el diagrama.
 
 ---
 
@@ -211,7 +242,7 @@ También se actualizó `db/README.md`, que documentaba credenciales en `db.prope
 
 ## 6. Estado de las pruebas
 
-**Antes: 18. Ahora: 50.**
+**Antes: 18. Ahora: 65.**
 
 El recuento bajó momentáneamente a 15 al eliminar `Daosrestantestest` junto con los tres DAO que el diagrama no contempla, y subió desde ahí.
 
@@ -220,12 +251,15 @@ El recuento bajó momentáneamente a 15 al eliminar `Daosrestantestest` junto co
 | `ConexionBDTest` | 5 | Unicidad del Singleton, conexión abierta, **reutilización con `assertSame`**, restablecimiento tras cerrarla, y dos operaciones consecutivas sobre la misma conexión. Integración real contra PostgreSQL. |
 | `FactoriasDronTest` | 6 | Cada fábrica construye su subtipo, atributos comunes y específicos, el tipo lo declara el objeto, polimorfismo sobre la colección, igualdad por id. |
 | `DronBuilderTest` | 14 | Ambos subtipos, encadenamiento (`assertSame` sobre `this`), reutilización del builder, id en 0 por defecto, y una prueba por cada validación. |
-| `DronPrototypeTest` | 14 | Clase concreta conservada, datos y atributos del subtipo, id descartado, piloto no robado, **lista de sensores independiente**, **sensores duplicados**, atributos independientes, y el registro: clones distintos, plantilla inmune a la edición de un clon y a la del objeto registrado, clave desconocida, eliminación, orden de registro. |
-| `DronControladorTest` | 5 | Alta y consulta con DAO en memoria; las cuatro de la integración del Prototype. |
+| `DronPrototypeTest` | 17 | **Que el modelo siga ajeno al patrón** (por reflexión), clase concreta conservada, datos del subtipo, id descartado, piloto no robado, identidades distintas, **lista de sensores independiente**, **sensores duplicados**, atributos independientes, y el registro: clones distintos, plantilla inmune a la edición de un clon y a la del objeto registrado, clave desconocida, eliminación, orden de registro. |
+| `InformeDeIdentidadTest` | 8 | Identidades en hexadecimal, uso de `identityHashCode` y **no** del `hashCode` sobrescrito, las comparaciones pedidas, la advertencia sobre las listas, la prueba de independencia, que el informe no altere los drones que examina, y el informe del Builder. |
+| `DronControladorTest` | 9 | Alta y consulta con DAO en memoria; integración del Prototype; los dos botones de demostración, incluido el caso del formulario vacío. |
 | `ManejoErroresTest` | 5 | Serial vacío, **tipo nulo**, peso negativo, serial duplicado y alta correcta. Integración real. |
 | `FlujoCrudDronTest` | 1 | Tres altas, una actualización, una relectura y tres bajas **encadenadas**, comprobando que la conexión sigue siendo la misma. Integración real. |
 
-**Sobre la prueba de copia superficial.** `modificarUnSensorDelClon_noDebeAfectarAlDelOriginal` se verificó rompiendo a propósito el constructor copia (compartiendo los objetos `Sensor`): la prueba **falla**, como debe. Después se restauró el código.
+**Sobre la prueba de copia superficial.** `modificarUnSensorDelClon_noDebeAfectarAlDelOriginal` se verificó rompiendo a propósito la copia (compartiendo los objetos `Sensor`): la prueba **falla**, como debe. Después se restauró el código.
+
+**Sobre la prueba por reflexión.** `elModelo_noDebeConocerElPatronPrototype` comprueba que `Dron` no expone `copiar()`, que ninguna clase del modelo tiene constructor copia y que `Dron` no implementa interfaz alguna. Falla si alguien vuelve a meter la lógica del patrón en el dominio: convierte el requisito del profesor en una prueba automática en vez de en una nota en un documento.
 
 **Javadoc:** `mvn javadoc:javadoc` pasó de 67 avisos a 0.
 
