@@ -1,6 +1,6 @@
 package co.edu.poli.sw2.servicios;
 
-import co.edu.poli.sw2.Modelo.Agricultura;
+import co.edu.poli.sw2.modelo.Agricultura;
 
 /**
  * Fábrica del subtipo {@link Agricultura}.

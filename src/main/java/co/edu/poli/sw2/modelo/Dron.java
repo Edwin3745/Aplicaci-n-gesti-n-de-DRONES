@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.Modelo;
+package co.edu.poli.sw2.modelo;
 
 import java.util.ArrayList;
 import java.util.Collections;
