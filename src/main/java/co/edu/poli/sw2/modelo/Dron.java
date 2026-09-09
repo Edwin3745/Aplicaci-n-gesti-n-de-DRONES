@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import co.edu.poli.sw2.servicios.ControlDron;
+
 /**
  * Representa la entidad base del sistema de gestión de drones.
  *
@@ -13,6 +15,10 @@ import java.util.Objects;
  * cada subtipo concreto debe definir.
  *
  * Las clases Agricultura y Vigilancia heredan de esta clase.
+ *
+ * <p>El atributo {@code control} es el puente del patrón Bridge: separa lo que
+ * el dron <em>es</em> de <em>cómo se gobierna</em>, de modo que ambas cosas
+ * puedan variar por separado sin multiplicar las clases de la jerarquía.</p>
  */
 public abstract class Dron {
 
@@ -36,6 +42,9 @@ public abstract class Dron {
 
     /** Sensores montados en el dron. */
     private final List<Sensor> sensores = new ArrayList<>();
+
+    /** Modo de control con el que opera este dron. Puente del patrón Bridge. */
+    private ControlDron control;
 
     /**
      * Constructor vacío para reconstrucción desde la capa de persistencia.
@@ -262,6 +271,62 @@ public abstract class Dron {
      */
     public boolean removerSensor(Sensor sensor) {
         return sensores.remove(sensor);
+    }
+
+    // ------------------------------------------------------------------
+    // Puente con el modo de control (patrón Bridge)
+    // ------------------------------------------------------------------
+
+    /**
+     * Obtiene el modo de control asignado a este dron.
+     *
+     * @return control asignado, o {@code null} si todavía no tiene ninguno.
+     */
+    public ControlDron getControl() {
+        return control;
+    }
+
+    /**
+     * Asigna el modo de control con el que opera el dron.
+     *
+     * <p>Es el puente del patrón Bridge: permite cambiar el modo en tiempo de
+     * ejecución sin crear un dron nuevo ni tocar su jerarquía.</p>
+     *
+     * @param control modo de control a asignar.
+     */
+    public void setControl(ControlDron control) {
+        this.control = control;
+    }
+
+    /**
+     * Indica si el dron tiene un modo de control asignado.
+     *
+     * @return {@code true} si hay un control asignado.
+     */
+    public boolean tieneControlAsignado() {
+        return control != null;
+    }
+
+    /**
+     * Ejecuta la misión completa delegando cada maniobra en el modo de control.
+     *
+     * <p>El dron no sabe cómo se despega ni cómo se navega: eso lo decide el
+     * control asignado. Cambiar el control cambia el comportamiento del dron
+     * sin tocar esta clase ni su jerarquía, que es el propósito del puente.</p>
+     *
+     * @param destino lugar hacia el que se dirige el dron.
+     * @return relato de la misión, listo para mostrarse al usuario.
+     * @throws IllegalStateException si el dron no tiene control asignado.
+     */
+    public String ejecutarMision(String destino) {
+        if (control == null) {
+            throw new IllegalStateException(
+                    "El dron " + serial + " no tiene un modo de control asignado.");
+        }
+        String salto = System.lineSeparator();
+        return control.despegar()
+             + salto + control.navegar(destino)
+             + salto + control.aterrizar();
     }
 
     // ------------------------------------------------------------------
