@@ -250,14 +250,14 @@ public class DronDAOImpl implements GenericDAO<Dron, Integer> {
 
         // getDouble y getBoolean devuelven 0 y false cuando la columna es NULL,
         // así que cada rama lee únicamente la columna que su subtipo utiliza.
-        return switch (tipo) {
-            case AGRICULTURA -> AgriculturaFactory.crearDron(
-                    id, serial, modelo, fabricante, peso,
-                    rs.getDouble("capacidad_tanque"));
+       return switch (tipo) {
+    case AGRICULTURA -> DronFactory.para(tipo).crearDron(
+            id, serial, modelo, fabricante, peso,
+            rs.getDouble("capacidad_tanque"), false);
 
-            case VIGILANCIA -> VigilanciaFactory.crearDron(
-                    id, serial, modelo, fabricante, peso,
-                    rs.getBoolean("deteccion_termica"));
-        };
+    case VIGILANCIA -> DronFactory.para(tipo).crearDron(
+            id, serial, modelo, fabricante, peso,
+            0.0, rs.getBoolean("deteccion_termica"));
+};
     }
 }

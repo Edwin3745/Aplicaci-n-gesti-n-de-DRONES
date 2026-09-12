@@ -161,25 +161,27 @@ public class DronPrototypeManager {
      * @return dron nuevo con los mismos atributos, sin sensores todavía.
      */
     private Dron copiarAtributos(Dron original) {
-        return switch (original.getTipo()) {
+    return switch (original.getTipo()) {
 
-            case AGRICULTURA -> AgriculturaFactory.crearDron(
-                    0,
-                    original.getSerial(),
-                    original.getModelo(),
-                    original.getFabricante(),
-                    original.getPeso(),
-                    ((Agricultura) original).getCapacidadTanque());
+        case AGRICULTURA -> DronFactory.para(original.getTipo()).crearDron(
+                0,
+                original.getSerial(),
+                original.getModelo(),
+                original.getFabricante(),
+                original.getPeso(),
+                ((Agricultura) original).getCapacidadTanque(),
+                false);
 
-            case VIGILANCIA -> VigilanciaFactory.crearDron(
-                    0,
-                    original.getSerial(),
-                    original.getModelo(),
-                    original.getFabricante(),
-                    original.getPeso(),
-                    ((Vigilancia) original).isDeteccionTermica());
-        };
-    }
+        case VIGILANCIA -> DronFactory.para(original.getTipo()).crearDron(
+                0,
+                original.getSerial(),
+                original.getModelo(),
+                original.getFabricante(),
+                original.getPeso(),
+                0.0,
+                ((Vigilancia) original).isDeteccionTermica());
+    };
+}
 
     /**
      * Elimina una plantilla del registro.

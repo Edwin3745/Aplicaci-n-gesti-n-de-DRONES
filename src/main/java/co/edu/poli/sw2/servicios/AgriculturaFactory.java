@@ -1,34 +1,23 @@
 package co.edu.poli.sw2.servicios;
 
 import co.edu.poli.sw2.modelo.Agricultura;
+import co.edu.poli.sw2.modelo.Dron;
+import co.edu.poli.sw2.modelo.TipoDron;
 
 /**
  * Fábrica del subtipo {@link Agricultura}.
  *
- * <p>Concentra la construcción de los drones de agricultura, de modo que
- * ninguna otra capa necesite invocar directamente su constructor. Si mañana
- * crear un dron de agricultura exigiera un paso adicional —un valor por
- * defecto, una validación propia del subtipo—, este es el único archivo que
- * habría que tocar.</p>
- *
- * <p>Sustituye, junto con {@link VigilanciaFactory}, a la antigua fábrica única
- * que decidía el subtipo con un {@code switch}. Cada subtipo tiene ahora su
- * propia fábrica, y quien construye drones elige cuál usar.</p>
+ * <p>Expone un método estático de conveniencia con la firma propia del
+ * subtipo, y además implementa el contrato de {@link DronFactory} para poder
+ * participar del registro polimórfico ({@code DronFactory.para(tipo)}).</p>
  */
-public final class AgriculturaFactory {
-
-    /**
-     * Constructor privado: la clase solo expone métodos estáticos y no debe
-     * instanciarse.
-     */
-    private AgriculturaFactory() {
-    }
+public final class AgriculturaFactory extends DronFactory {
 
     /**
      * Crea un dron de agricultura.
      *
-     * @param id              identificador del dron; se envía 0 cuando aún no
-     *                        existe en la base de datos y el id lo generará ella.
+     * @param id              identificador del dron; 0 si aún no existe en la
+     *                        base de datos.
      * @param serial          número de serie del dron.
      * @param modelo          modelo del dron.
      * @param fabricante      fabricante del dron.
@@ -40,5 +29,23 @@ public final class AgriculturaFactory {
                                         String fabricante, double peso,
                                         double capacidadTanque) {
         return new Agricultura(id, serial, modelo, fabricante, peso, capacidadTanque);
+    }
+
+    @Override
+    public TipoDron getTipo() {
+        return TipoDron.AGRICULTURA;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Delega en {@link #crearDron(int, String, String, String, double, double)};
+     * {@code deteccionTermica} se ignora porque no aplica a este subtipo.</p>
+     */
+    @Override
+    public Dron crearDron(int id, String serial, String modelo,
+                           String fabricante, double peso,
+                           double capacidadTanque, boolean deteccionTermica) {
+        return crearDron(id, serial, modelo, fabricante, peso, capacidadTanque);
     }
 }

@@ -160,15 +160,15 @@ public class DronBuilder {
     public Dron build() {
         validar();
 
-        return switch (tipo) {
-            case AGRICULTURA -> AgriculturaFactory.crearDron(
-                    id, serial.trim(), modelo.trim(), fabricante.trim(),
-                    peso, capacidadTanque);
+       return switch (tipo) {
+    case AGRICULTURA -> DronFactory.para(tipo).crearDron(
+            id, serial.trim(), modelo.trim(), fabricante.trim(),
+            peso, capacidadTanque, false);
 
-            case VIGILANCIA -> VigilanciaFactory.crearDron(
-                    id, serial.trim(), modelo.trim(), fabricante.trim(),
-                    peso, deteccionTermica);
-        };
+    case VIGILANCIA -> DronFactory.para(tipo).crearDron(
+            id, serial.trim(), modelo.trim(), fabricante.trim(),
+            peso, 0.0, deteccionTermica);
+};
     }
 
     /**
