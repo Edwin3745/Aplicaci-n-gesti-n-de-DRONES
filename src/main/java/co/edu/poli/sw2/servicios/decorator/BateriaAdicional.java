@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.decorator;
 
 /**
  * Añade una batería adicional a un dron ya configurado.

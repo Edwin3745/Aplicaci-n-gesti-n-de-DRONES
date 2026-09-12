@@ -3,9 +3,10 @@ package co.edu.poli.sw2;
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.Sensor;
-import co.edu.poli.sw2.servicios.AgriculturaFactory;
-import co.edu.poli.sw2.servicios.DronPrototypeManager;
 import co.edu.poli.sw2.servicios.InformeDeIdentidad;
+import co.edu.poli.sw2.servicios.factory.AgriculturaFactory;
+import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -4,7 +4,8 @@ import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.modelo.Vigilancia;
-import co.edu.poli.sw2.servicios.DronBuilder;
+import co.edu.poli.sw2.servicios.builder.DronBuilder;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

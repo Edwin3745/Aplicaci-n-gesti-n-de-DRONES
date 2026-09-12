@@ -1,9 +1,10 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.prototype;
 
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.Sensor;
 import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.servicios.factory.DronFactory;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import co.edu.poli.sw2.servicios.ControlDron;
+import co.edu.poli.sw2.servicios.bridge.ControlDron;
 
 /**
  * Representa la entidad base del sistema de gestión de drones.

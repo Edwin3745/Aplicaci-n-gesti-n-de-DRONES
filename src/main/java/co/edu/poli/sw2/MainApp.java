@@ -1,6 +1,6 @@
 package co.edu.poli.sw2;
 
-import co.edu.poli.sw2.servicios.ConexionBD;
+import co.edu.poli.sw2.servicios.dao.ConexionBD;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

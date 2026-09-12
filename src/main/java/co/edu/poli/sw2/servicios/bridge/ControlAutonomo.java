@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.bridge;
 
 /**
  * Control autónomo: el dron ejecuta la misión por sí mismo a partir de una ruta

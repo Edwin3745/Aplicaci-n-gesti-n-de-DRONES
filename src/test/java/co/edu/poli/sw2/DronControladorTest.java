@@ -4,9 +4,10 @@ import co.edu.poli.sw2.Controlador.DronControlador;
 import co.edu.poli.sw2.Controlador.OperacionFallidaException;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
-import co.edu.poli.sw2.servicios.AgriculturaFactory;
 import co.edu.poli.sw2.servicios.DemostracionPatron;
-import co.edu.poli.sw2.servicios.GenericDAO;
+import co.edu.poli.sw2.servicios.dao.GenericDAO;
+import co.edu.poli.sw2.servicios.factory.AgriculturaFactory;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

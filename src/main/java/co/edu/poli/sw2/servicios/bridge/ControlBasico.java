@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.bridge;
 
 /**
  * Control manual: cada maniobra la ordena el piloto desde la estación de mando.

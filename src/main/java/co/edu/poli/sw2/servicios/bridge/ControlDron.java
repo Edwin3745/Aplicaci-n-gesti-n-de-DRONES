@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.bridge;
 
 /**
  * Define cómo se gobierna un dron durante una operación.

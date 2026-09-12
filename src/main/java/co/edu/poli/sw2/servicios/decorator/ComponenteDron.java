@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.servicios.decorator;
 
 /**
  * Define lo que se puede describir de un dron y de todo lo que se le añada.

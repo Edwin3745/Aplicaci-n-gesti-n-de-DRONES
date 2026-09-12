@@ -3,12 +3,12 @@ package co.edu.poli.sw2.Controlador;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.DemostracionPatron;
-import co.edu.poli.sw2.servicios.DronBuilder;
-import co.edu.poli.sw2.servicios.DronDAOImpl;
-import co.edu.poli.sw2.servicios.DronPrototypeManager;
-import co.edu.poli.sw2.servicios.GenericDAO;
 import co.edu.poli.sw2.servicios.InformeDeIdentidad;
 import co.edu.poli.sw2.servicios.ServicioException;
+import co.edu.poli.sw2.servicios.builder.DronBuilder;
+import co.edu.poli.sw2.servicios.dao.DronDAOImpl;
+import co.edu.poli.sw2.servicios.dao.GenericDAO;
+import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
 
 import java.util.List;
 import java.util.Set;

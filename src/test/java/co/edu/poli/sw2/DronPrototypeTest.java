@@ -5,9 +5,10 @@ import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.Piloto;
 import co.edu.poli.sw2.modelo.Sensor;
 import co.edu.poli.sw2.modelo.Vigilancia;
-import co.edu.poli.sw2.servicios.AgriculturaFactory;
-import co.edu.poli.sw2.servicios.DronPrototypeManager;
-import co.edu.poli.sw2.servicios.VigilanciaFactory;
+import co.edu.poli.sw2.servicios.factory.AgriculturaFactory;
+import co.edu.poli.sw2.servicios.factory.VigilanciaFactory;
+import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
