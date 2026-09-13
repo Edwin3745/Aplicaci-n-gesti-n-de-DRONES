@@ -40,6 +40,10 @@ public class DronVista {
     @FXML private Button btnClonar;
     @FXML private TextArea txtEvidencia;
 
+    @FXML private ComboBox<String> cmbModoControl;
+    @FXML private TextField txtDestino;
+    @FXML private TextField txtCapacidadBateria;
+
     @FXML private TableView<Dron> tablaDrones;
     @FXML private TableColumn<Dron, Integer> colId;
     @FXML private TableColumn<Dron, String> colTipo;
@@ -68,6 +72,7 @@ public class DronVista {
     public void initialize() {
         configurarComboTipo();
         configurarComboPlantillas();
+        configurarComboModoControl();
         configurarTabla();
         actualizarTabla();
     }
@@ -136,6 +141,15 @@ public class DronVista {
         cmbPlantilla.setItems(FXCollections.observableArrayList(
                 dronControlador.nombresDePlantillas()));
         cmbPlantilla.getSelectionModel().selectFirst();
+    }
+
+    /**
+     * Puebla el selector de modo de control con las dos implementaciones del
+     * patrón Bridge disponibles.
+     */
+    private void configurarComboModoControl() {
+        cmbModoControl.setItems(FXCollections.observableArrayList("Básico", "Autónomo"));
+        cmbModoControl.getSelectionModel().selectFirst();
     }
 
     private void configurarTabla() {
@@ -346,6 +360,53 @@ public class DronVista {
             cargarEnFormulario(resultado.dron());
             escribirEvidencia(resultado.informe());
             tablaDrones.getSelectionModel().clearSelection();
+
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
+     * Asigna al dron elegido el modo de control seleccionado y ejecuta una
+     * misión hacia el destino indicado.
+     *
+     * <p>Es la demostración del patrón Bridge: el mismo dron de la tabla puede
+     * llamarse varias veces con "Básico" y con "Autónomo" para comprobar que
+     * el relato de la misión cambia sin que el dron se recree.</p>
+     */
+    @FXML
+    public void ejecutarMision() {
+        Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
+
+        try {
+            boolean autonomo = "Autónomo".equals(cmbModoControl.getValue());
+            DemostracionPatron resultado = dronControlador.ejecutarMisionConControl(
+                    seleccionado, autonomo, txtDestino.getText());
+
+            escribirEvidencia(resultado.informe());
+
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
+     * Añade una batería adicional al dron elegido en la tabla.
+     *
+     * <p>Es la demostración del patrón Decorator: el {@code Dron} seleccionado
+     * no se modifica; se envuelve en un {@code ComponenteDron} decorado y el
+     * informe muestra la descripción antes y después.</p>
+     */
+    @FXML
+    public void agregarBateria() {
+        Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
+
+        try {
+            double capacidad = leerDecimalOpcional(txtCapacidadBateria);
+            DemostracionPatron resultado = dronControlador.agregarBateriaAdicional(
+                    seleccionado, capacidad);
+
+            escribirEvidencia(resultado.informe());
 
         } catch (OperacionFallidaException e) {
             mostrarAlerta(e.getMessage());

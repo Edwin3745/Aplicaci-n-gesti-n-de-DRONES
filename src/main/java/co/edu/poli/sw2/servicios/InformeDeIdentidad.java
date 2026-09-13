@@ -2,6 +2,8 @@ package co.edu.poli.sw2.servicios;
 
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.Sensor;
+import co.edu.poli.sw2.servicios.bridge.ControlDron;
+import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
 
 import java.util.List;
@@ -164,6 +166,78 @@ public final class InformeDeIdentidad {
                 .append("    llega a existir un dron a medio construir.").append(NL)
                 .append("  · el builder no invocó ningún constructor: delegó en la").append(NL)
                 .append("    fábrica del subtipo, que decidió la clase concreta.").append(NL)
+                .toString();
+    }
+
+    /**
+     * Redacta la evidencia de que un dron cambió de modo de control sin
+     * recrearse, según el patrón Bridge.
+     *
+     * <p>El dron no sabe cómo se despega, navega o aterriza: eso lo decide el
+     * {@link ControlDron} que tenga asignado en cada momento. Este informe deja
+     * constancia de cuál es ese control y del relato que produjo al ejecutar la
+     * misión.</p>
+     *
+     * @param dron    dron que ejecutó la misión, ya con el control asignado.
+     * @param destino destino de la misión.
+     * @param relato  texto devuelto por {@link Dron#ejecutarMision(String)}.
+     * @return informe listo para mostrarse en la interfaz.
+     */
+    public static String describirBridge(Dron dron, String destino, String relato) {
+        ControlDron control = dron.getControl();
+
+        return new StringBuilder()
+                .append("=== PATRÓN BRIDGE — cambio de modo de control ===").append(NL)
+                .append(NL)
+                .append("Dron        : ").append(referencia(dron))
+                .append(" (serial ").append(dron.getSerial()).append(")").append(NL)
+                .append("Modo actual : ").append(control.getModo())
+                .append("  ->  implementación ").append(control.getClass().getSimpleName()).append(NL)
+                .append("Destino     : ").append(destino).append(NL)
+                .append(NL)
+                .append("Misión ejecutada delegando en el control asignado:").append(NL)
+                .append(relato).append(NL)
+                .append(NL)
+                .append("Qué demuestra:").append(NL)
+                .append("  · Dron no sabe cómo se despega, navega o aterriza: delega esas").append(NL)
+                .append("    tres operaciones en el ControlDron asignado (el lado").append(NL)
+                .append("    \"implementador\" del puente).").append(NL)
+                .append("  · el mismo objeto Dron cambió de comportamiento con").append(NL)
+                .append("    setControl(...), sin crear un dron nuevo ni tocar su").append(NL)
+                .append("    jerarquía de clases (Agricultura / Vigilancia).").append(NL)
+                .toString();
+    }
+
+    /**
+     * Redacta la evidencia de que a un dron se le añadió un accesorio en
+     * tiempo de ejecución, según el patrón Decorator.
+     *
+     * @param sinAccesorios equipo antes de decorar, normalmente un
+     *                      {@code DronBase}.
+     * @param conAccesorios equipo después de envolverlo con uno o más
+     *                      decoradores, por ejemplo {@code BateriaAdicional}.
+     * @return informe listo para mostrarse en la interfaz.
+     */
+    public static String describirDecorator(ComponenteDron sinAccesorios,
+                                            ComponenteDron conAccesorios) {
+        return new StringBuilder()
+                .append("=== PATRÓN DECORATOR — accesorio añadido en tiempo de ejecución ===").append(NL)
+                .append(NL)
+                .append("Sin accesorios : ").append(sinAccesorios.getDescripcion()).append(NL)
+                .append("Con accesorios : ").append(conAccesorios.getDescripcion()).append(NL)
+                .append(NL)
+                .append("Referencia base     : ").append(referencia(sinAccesorios)).append(NL)
+                .append("Referencia decorada : ").append(referencia(conAccesorios)).append(NL)
+                .append(NL)
+                .append("Qué demuestra:").append(NL)
+                .append("  · BateriaAdicional implementa ComponenteDron y a la vez").append(NL)
+                .append("    envuelve otro ComponenteDron: por eso pueden apilarse").append(NL)
+                .append("    varias capas de accesorios sin crear una subclase por").append(NL)
+                .append("    cada combinación.").append(NL)
+                .append("  · el Dron original no se modificó: la clase Dron no sabe").append(NL)
+                .append("    nada de baterías adicionales ni del patrón.").append(NL)
+                .append("  · getDescripcion() delega primero en lo envuelto y añade").append(NL)
+                .append("    su aporte al final, reflejando el equipo completo.").append(NL)
                 .toString();
     }
 

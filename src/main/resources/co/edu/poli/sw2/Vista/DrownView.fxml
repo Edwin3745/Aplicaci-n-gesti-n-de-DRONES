@@ -94,6 +94,29 @@
                 <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
                 <Button text="Builder" onAction="#construirConBuilder"/>
             </HBox>
+
+            <Separator/>
+
+            <!-- Patrón Bridge: el dron seleccionado cambia de modo de control
+                 y ejecuta una misión con él, sin recrearse. -->
+            <Label text="Control del dron (Bridge):"/>
+            <HBox spacing="8">
+                <ComboBox fx:id="cmbModoControl" prefWidth="120"/>
+                <TextField fx:id="txtDestino" promptText="Destino" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox spacing="8">
+                <Button text="Ejecutar misión" onAction="#ejecutarMision"/>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Patrón Decorator: se añade una batería adicional al dron
+                 seleccionado sin modificar su clase. -->
+            <Label text="Accesorios (Decorator):"/>
+            <HBox spacing="8">
+                <TextField fx:id="txtCapacidadBateria" promptText="mAh (opcional)"/>
+                <Button text="Agregar batería" onAction="#agregarBateria"/>
+            </HBox>
         </VBox>
     </left>
 

@@ -5,9 +5,15 @@ import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.DemostracionPatron;
 import co.edu.poli.sw2.servicios.InformeDeIdentidad;
 import co.edu.poli.sw2.servicios.ServicioException;
+import co.edu.poli.sw2.servicios.bridge.ControlAutonomo;
+import co.edu.poli.sw2.servicios.bridge.ControlBasico;
+import co.edu.poli.sw2.servicios.bridge.ControlDron;
 import co.edu.poli.sw2.servicios.builder.DronBuilder;
 import co.edu.poli.sw2.servicios.dao.DronDAOImpl;
 import co.edu.poli.sw2.servicios.dao.GenericDAO;
+import co.edu.poli.sw2.servicios.decorator.BateriaAdicional;
+import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
+import co.edu.poli.sw2.servicios.decorator.DronBase;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
 
 import java.util.List;
@@ -333,6 +339,75 @@ public class DronControlador {
         } catch (ServicioException e) {
             throw traducir(e, "actualizar", dron.getSerial());
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Demostración del patrón Bridge
+    // ------------------------------------------------------------------
+
+    /**
+     * Asigna un modo de control al dron indicado y ejecuta una misión con él.
+     *
+     * <p>Es lo que ejecuta el botón "Ejecutar misión" de la interfaz. El dron
+     * no se recrea: se le reasigna el {@link ControlDron} elegido y las tres
+     * maniobras quedan delegadas en él, que es el propósito del puente. El
+     * mismo dron puede volver a llamarse con el otro modo cuantas veces se
+     * quiera, para comprobar que el comportamiento cambia sin tocar su clase.</p>
+     *
+     * @param dron     dron seleccionado en la tabla.
+     * @param autonomo {@code true} para modo autónomo, {@code false} para básico.
+     * @param destino  lugar hacia el que se dirige la misión.
+     * @return el dron operado y el informe que evidencia el cambio de modo.
+     * @throws OperacionFallidaException si no hay dron seleccionado o falta el destino.
+     */
+    public DemostracionPatron ejecutarMisionConControl(Dron dron, boolean autonomo, String destino) {
+        if (dron == null) {
+            throw new OperacionFallidaException("Selecciona un dron de la tabla para operarlo.");
+        }
+        if (destino == null || destino.isBlank()) {
+            throw new OperacionFallidaException("Indica un destino para la misión.");
+        }
+
+        ControlDron control = autonomo ? new ControlAutonomo() : new ControlBasico();
+        dron.setControl(control);
+
+        String destinoUsado = destino.trim();
+        String relato = dron.ejecutarMision(destinoUsado);
+
+        return new DemostracionPatron(dron,
+                InformeDeIdentidad.describirBridge(dron, destinoUsado, relato));
+    }
+
+    // ------------------------------------------------------------------
+    // Demostración del patrón Decorator
+    // ------------------------------------------------------------------
+
+    /**
+     * Añade una batería adicional al dron indicado, sin modificar su clase.
+     *
+     * <p>Es lo que ejecuta el botón "Agregar batería" de la interfaz. El
+     * {@link Dron} en sí no cambia: se envuelve en un {@link ComponenteDron}
+     * decorado, y el informe muestra la descripción antes y después de la
+     * decoración.</p>
+     *
+     * @param dron         dron seleccionado en la tabla.
+     * @param capacidadMah capacidad de la batería en mAh; si es 0 o menos se
+     *                     usa el valor por defecto de {@link BateriaAdicional}.
+     * @return el mismo dron, sin modificar, y el informe de la decoración.
+     * @throws OperacionFallidaException si no hay dron seleccionado.
+     */
+    public DemostracionPatron agregarBateriaAdicional(Dron dron, double capacidadMah) {
+        if (dron == null) {
+            throw new OperacionFallidaException("Selecciona un dron de la tabla para equiparlo.");
+        }
+
+        ComponenteDron base = new DronBase(dron);
+        ComponenteDron equipado = capacidadMah > 0
+                ? new BateriaAdicional(base, (int) capacidadMah)
+                : new BateriaAdicional(base);
+
+        return new DemostracionPatron(dron,
+                InformeDeIdentidad.describirDecorator(base, equipado));
     }
 
     // ------------------------------------------------------------------
