@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -29,95 +30,113 @@
     </top>
 
     <left>
-        <VBox spacing="10" styleClass="panel-formulario">
-            <padding>
-                <Insets top="10" left="15" bottom="10" right="15"/>
-            </padding>
+        <!-- El panel de formulario y patrones se desplaza dentro de su propia
+             zona, para que crecer en opciones no empuje el área de evidencia
+             fuera de la ventana. -->
+        <ScrollPane fitToWidth="true" prefWidth="330" hbarPolicy="NEVER"
+                    styleClass="panel-scroll">
 
-            <GridPane hgap="8" vgap="8">
+            <VBox spacing="10" styleClass="panel-formulario">
+                <padding>
+                    <Insets top="10" left="15" bottom="10" right="15"/>
+                </padding>
 
-                <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="cmbTipo" prefWidth="160"
-                          GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <GridPane hgap="8" vgap="8">
 
-                <Label text="ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtId" editable="false" promptText="Automático"
-                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cmbTipo" prefWidth="160"
+                              GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                <Label text="Serial:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtSerial" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Label text="ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtId" editable="false" promptText="Automático"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                <Label text="Modelo:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtModelo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    <Label text="Serial:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtSerial" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Label text="Fabricante:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtFabricante" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    <Label text="Modelo:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtModelo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                <Label text="Peso (kg):" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtPeso" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                    <Label text="Fabricante:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtFabricante" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-                <Label fx:id="lblCapacidadTanque" text="Tanque (L):"
-                       GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtCapacidadTanque"
-                           GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                    <Label text="Peso (kg):" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtPeso" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-                <Label fx:id="lblDeteccionTermica" text="Térmica:"
-                       GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                <CheckBox fx:id="chkDeteccionTermica"
-                          GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                    <Label fx:id="lblCapacidadTanque" text="Tanque (L):"
+                           GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtCapacidadTanque"
+                               GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-            </GridPane>
+                    <Label fx:id="lblDeteccionTermica" text="Térmica:"
+                           GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                    <CheckBox fx:id="chkDeteccionTermica"
+                              GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
-            <HBox spacing="8">
-                <Button text="Agregar" onAction="#agregarDron"/>
-                <Button text="Actualizar" onAction="#actualizarDronSeleccionado"/>
-                <Button text="Eliminar" onAction="#eliminarDron"/>
-                <Button text="Limpiar" onAction="#limpiarFormulario"/>
-            </HBox>
+                </GridPane>
 
-            <Separator/>
+                <HBox spacing="8">
+                    <Button text="Agregar" onAction="#agregarDron"/>
+                    <Button text="Actualizar" onAction="#actualizarDronSeleccionado"/>
+                    <Button text="Eliminar" onAction="#eliminarDron"/>
+                    <Button text="Limpiar" onAction="#limpiarFormulario"/>
+                </HBox>
 
-            <!-- Patrón Prototype: el usuario parte de una configuración base
-                 registrada en vez de rellenar el formulario desde cero. -->
-            <Label text="Configuración base:"/>
-            <HBox spacing="8">
-                <ComboBox fx:id="cmbPlantilla" prefWidth="160"/>
-                <Button text="Usar" onAction="#usarPlantilla"/>
-            </HBox>
+                <Separator/>
 
-            <Separator/>
+                <!-- Patrón Prototype: el usuario parte de una configuración base
+                     registrada en vez de rellenar el formulario desde cero. -->
+                <Label text="Configuración base:"/>
+                <HBox spacing="8">
+                    <ComboBox fx:id="cmbPlantilla" prefWidth="160"/>
+                    <Button text="Usar" onAction="#usarPlantilla"/>
+                </HBox>
 
-            <!-- Demostración de los patrones de creación. La salida de ambos
-                 botones va al área de evidencia, nunca a la consola. -->
-            <Label text="Demostración de patrones:"/>
-            <HBox spacing="8">
-                <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
-                <Button text="Builder" onAction="#construirConBuilder"/>
-            </HBox>
+                <Separator/>
 
-            <Separator/>
+                <!-- Demostración de los patrones de creación. La salida de ambos
+                     botones va al área de evidencia, nunca a la consola. -->
+                <Label text="Demostración de patrones:"/>
+                <HBox spacing="8">
+                    <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
+                    <Button text="Builder" onAction="#construirConBuilder"/>
+                </HBox>
 
-            <!-- Patrón Bridge: el dron seleccionado cambia de modo de control
-                 y ejecuta una misión con él, sin recrearse. -->
-            <Label text="Control del dron (Bridge):"/>
-            <HBox spacing="8">
-                <ComboBox fx:id="cmbModoControl" prefWidth="120"/>
-                <TextField fx:id="txtDestino" promptText="Destino" HBox.hgrow="ALWAYS"/>
-            </HBox>
-            <HBox spacing="8">
-                <Button text="Ejecutar misión" onAction="#ejecutarMision"/>
-            </HBox>
+                <Separator/>
 
-            <Separator/>
+                <!-- Patrón Bridge: el dron seleccionado cambia de modo de control
+                     y ejecuta una misión con él, sin recrearse. -->
+                <Label text="Control del dron (Bridge):"/>
+                <HBox spacing="8">
+                    <ComboBox fx:id="cmbModoControl" prefWidth="120"/>
+                    <TextField fx:id="txtDestino" promptText="Destino" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="8">
+                    <Button text="Ejecutar misión" onAction="#ejecutarMision"/>
+                </HBox>
 
-            <!-- Patrón Decorator: se añade una batería adicional al dron
-                 seleccionado sin modificar su clase. -->
-            <Label text="Accesorios (Decorator):"/>
-            <HBox spacing="8">
-                <TextField fx:id="txtCapacidadBateria" promptText="mAh (opcional)"/>
-                <Button text="Agregar batería" onAction="#agregarBateria"/>
-            </HBox>
-        </VBox>
+                <Separator/>
+
+                <!-- Patrón Decorator: se añade una batería adicional al dron
+                     seleccionado sin modificar su clase. -->
+                <Label text="Accesorios (Decorator):"/>
+                <HBox spacing="8">
+                    <TextField fx:id="txtCapacidadBateria" promptText="mAh (opcional)"/>
+                    <Button text="Agregar batería" onAction="#agregarBateria"/>
+                </HBox>
+
+                <Separator/>
+
+                <!-- Patrón Composite: jerarquía de sensores con grupos y sensores
+                     individuales tratados de la misma forma. No necesita ningún
+                     dron seleccionado: la jerarquía es independiente del listado. -->
+                <Label text="Sensores (Composite):"/>
+                <HBox spacing="8">
+                    <Button text="Ver jerarquía" onAction="#mostrarSensores"/>
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
     </left>
 
     <center>
@@ -137,8 +156,9 @@
     </center>
 
     <bottom>
-        <!-- Área de evidencia: aquí escriben los botones Clonar y Builder.
-             Es de solo lectura y con scroll; nada se imprime por consola. -->
+        <!-- Área de evidencia: aquí escriben todos los botones de demostración
+             de patrones. Es de solo lectura y con scroll; nada se imprime por
+             consola. -->
         <VBox spacing="6" styleClass="panel-evidencia">
             <padding>
                 <Insets top="0" left="10" bottom="10" right="15"/>
@@ -152,9 +172,9 @@
             <TextArea fx:id="txtEvidencia"
                       editable="false"
                       wrapText="false"
-                      prefRowCount="10"
-                      prefHeight="200"
-                      promptText="Pulsa Clonar o Builder para ver aquí la evidencia."
+                      prefRowCount="8"
+                      prefHeight="160"
+                      promptText="Pulsa cualquier botón de demostración para ver aquí la evidencia."
                       styleClass="area-evidencia"/>
         </VBox>
     </bottom>
