@@ -118,7 +118,7 @@ CREATE INDEX idx_sensor_dron ON sensor (dron_id);
 
 
 -- ----------------------------------------------------------------------------
---  MISION
+--  MISION  
 -- ----------------------------------------------------------------------------
 CREATE TABLE mision (
     id        SERIAL       PRIMARY KEY,

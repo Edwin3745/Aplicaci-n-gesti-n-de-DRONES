@@ -414,6 +414,23 @@ public class DronVista {
     }
 
     /**
+     * Muestra la jerarquía completa de sensores en el área de evidencia.
+     *
+     * <p>Es la demostración del patrón Composite. A diferencia de los demás
+     * botones, este no necesita ningún dron seleccionado: la jerarquía la
+     * construye el controlador y se recorre entera con una sola llamada, sin
+     * que la vista tenga que distinguir entre sensores individuales y grupos.</p>
+     */
+    @FXML
+    public void mostrarSensores() {
+        try {
+            escribirEvidencia(dronControlador.mostrarJerarquiaDeSensores());
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
      * Vacía el área de evidencia.
      */
     @FXML

@@ -9,6 +9,9 @@ import co.edu.poli.sw2.servicios.bridge.ControlAutonomo;
 import co.edu.poli.sw2.servicios.bridge.ControlBasico;
 import co.edu.poli.sw2.servicios.bridge.ControlDron;
 import co.edu.poli.sw2.servicios.builder.DronBuilder;
+import co.edu.poli.sw2.servicios.composite.SensorComponente;
+import co.edu.poli.sw2.servicios.composite.SensorCompuesto;
+import co.edu.poli.sw2.servicios.composite.SensorHoja;
 import co.edu.poli.sw2.servicios.dao.DronDAOImpl;
 import co.edu.poli.sw2.servicios.dao.GenericDAO;
 import co.edu.poli.sw2.servicios.decorator.BateriaAdicional;
@@ -408,6 +411,82 @@ public class DronControlador {
 
         return new DemostracionPatron(dron,
                 InformeDeIdentidad.describirDecorator(base, equipado));
+    }
+
+    // ------------------------------------------------------------------
+    // Demostración del patrón Composite
+    // ------------------------------------------------------------------
+
+    /**
+     * Genera el informe de la jerarquía de sensores para mostrarlo en la
+     * interfaz.
+     *
+     * <p>Es lo que ejecuta el botón "Jerarquía de sensores". El árbol se
+     * recorre con una única llamada a {@code mostrarInfo()} sobre la raíz: no
+     * hay bucles ni comprobaciones de tipo aquí, porque cada nodo sabe
+     * responder por sí mismo y por lo que cuelga de él.</p>
+     *
+     * @return árbol completo de sensores y recuento de sensores individuales.
+     */
+    public String mostrarJerarquiaDeSensores() {
+        SensorComponente raiz = construirArbolDeSensores();
+        String salto = System.lineSeparator();
+
+        return "=== PATRÓN COMPOSITE — jerarquía de sensores ===" + salto
+             + salto
+             + raiz.mostrarInfo() + salto
+             + salto
+             + "Total de sensores individuales: " + raiz.contarSensores() + salto
+             + salto
+             + "Qué demuestra:" + salto
+             + "  · 'Sensor Inteligente' es una hoja colgada de la raíz, al" + salto
+             + "    mismo nivel que los grupos: el padre los trata igual" + salto
+             + "    porque ambos son SensorComponente." + salto
+             + "  · 'Sensor Digital' es hijo de 'Sensor Sonido' y padre de SPI" + salto
+             + "    y UART a la vez: un compuesto puede contener compuestos." + salto
+             + "  · el recuento no recorre el árbol desde fuera: cada nodo" + salto
+             + "    pregunta a sus hijos y suma, y la recursión baja sola" + salto
+             + "    hasta las hojas." + salto
+             + "  · agregar un nivel más no obliga a cambiar este método.";
+    }
+
+    /**
+     * Construye la jerarquía de sensores que la aplicación muestra como
+     * demostración del patrón Composite.
+     *
+     * <p>El árbol mezcla deliberadamente los dos tipos de nodo. Fíjese en las
+     * llamadas a {@code agregar()} de la raíz: unas reciben un
+     * {@link SensorCompuesto} y otra una {@link SensorHoja}, y el método es el
+     * mismo en los dos casos. Esa uniformidad es justamente lo que el patrón
+     * aporta.</p>
+     *
+     * @return raíz de la jerarquía de sensores.
+     */
+    private SensorComponente construirArbolDeSensores() {
+        SensorCompuesto general = new SensorCompuesto("Sensor General");
+
+        SensorCompuesto temperatura = new SensorCompuesto("Sensor Temperatura");
+        temperatura.agregar(new SensorHoja("Sensor Infrarrojo"));
+        temperatura.agregar(new SensorHoja("RTD"));
+
+        SensorCompuesto camara = new SensorCompuesto("Sensor Cámara");
+        camara.agregar(new SensorHoja("Sensor CMOS"));
+        camara.agregar(new SensorHoja("Sensor CCD"));
+
+        SensorCompuesto digital = new SensorCompuesto("Sensor Digital");
+        digital.agregar(new SensorHoja("SPI"));
+        digital.agregar(new SensorHoja("UART"));
+
+        SensorCompuesto sonido = new SensorCompuesto("Sensor Sonido");
+        sonido.agregar(new SensorHoja("Sensor Analógico"));
+        sonido.agregar(digital);
+
+        general.agregar(temperatura);
+        general.agregar(camara);
+        general.agregar(sonido);
+        general.agregar(new SensorHoja("Sensor Inteligente"));
+
+        return general;
     }
 
     // ------------------------------------------------------------------
