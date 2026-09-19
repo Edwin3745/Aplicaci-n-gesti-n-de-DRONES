@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "nombre": "Exportación de dron",
+  "ubicacion": "No especificada",
+  "fecha": "2026-09-19",
+  "drones": [
+    {
+      "id": 25,
+      "serial": "3522",
+      "tipo": "vigilancia"
+    }
+  ]
+}

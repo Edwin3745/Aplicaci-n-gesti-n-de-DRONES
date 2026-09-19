@@ -18,6 +18,12 @@ import co.edu.poli.sw2.servicios.decorator.BateriaAdicional;
 import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
 import co.edu.poli.sw2.servicios.decorator.DronBase;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
+import co.edu.poli.sw2.modelo.Mision;
+import co.edu.poli.sw2.servicios.ExportadorDeArchivos;
+import co.edu.poli.sw2.servicios.adapter.ExportableJson;
+import co.edu.poli.sw2.servicios.adapter.MisionJsonAdapter;
+import java.nio.file.Path;
+import java.util.Date;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +42,8 @@ public class DronControlador {
 
     /** Configuraciones base de dron que el usuario puede tomar como punto de partida. */
     private final DronPrototypeManager plantillas = new DronPrototypeManager();
-
+     /** Archivo donde la demostración del patrón Adapter escribe el JSON. */
+     private static final String RUTA_EXPORTACION = "exportaciones/dron-seleccionado.json";
     /**
      * Construye el controlador con la implementación de DAO por defecto.
      */
@@ -544,5 +551,42 @@ public class DronControlador {
         return new OperacionFallidaException(
                 "No se pudo " + operacion + " el dron. "
                 + "Verifica la conexión con la base de datos.", e);
+    }
+        // ------------------------------------------------------------------
+    // Demostración del patrón Adapter
+    // ------------------------------------------------------------------
+
+    /**
+     * Exporta a JSON el dron seleccionado usando el patrón Adapter.
+     *
+     * <p>La misión se envuelve en un {@link MisionJsonAdapter} y se entrega al
+     * exportador como un {@link ExportableJson}: el exportador no sabe que
+     * detrás hay una {@code Mision}. Devuelve el informe redactado, listo para
+     * el área de evidencia.</p>
+     *
+     * @param dron dron seleccionado en la tabla.
+     * @return informe con la ubicación del archivo creado y su contenido.
+     * @throws OperacionFallidaException si no hay un dron seleccionado o no se
+     *         puede crear el archivo.
+     */
+    public String exportarMisionAJson(Dron dron) {
+        if (dron == null) {
+            throw new OperacionFallidaException(
+                    "Selecciona un dron de la tabla antes de exportarlo.");
+        }
+
+        Mision mision = new Mision(1, "Exportación de dron", "No especificada", new Date());
+        mision.agregarDron(dron);
+        ExportableJson documento = new MisionJsonAdapter(mision);
+
+        try {
+            new ExportadorDeArchivos().exportar(documento, RUTA_EXPORTACION);
+        } catch (ServicioException e) {
+            throw new OperacionFallidaException(
+                    "No se pudo crear el archivo JSON. Verifica los permisos de la carpeta.", e);
+        }
+
+        return InformeDeIdentidad.describirExportacion(
+                mision, Path.of(RUTA_EXPORTACION), documento.toJson());
     }
 }

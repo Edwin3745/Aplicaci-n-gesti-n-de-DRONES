@@ -337,7 +337,19 @@ public class DronVista {
             mostrarAlerta(e.getMessage());
         }
     }
-
+    /**
+     * Exporta el dron seleccionado a JSON con el patrón Adapter y muestra el
+     * mensaje del archivo creado en el área de evidencia.
+     */
+    @FXML
+    public void exportarMisionAJson() {
+        try {
+            escribirEvidencia(dronControlador.exportarMisionAJson(
+                    tablaDrones.getSelectionModel().getSelectedItem()));
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
     /**
      * Construye un dron con el patrón Builder y muestra la secuencia de
      * llamadas encadenadas junto con el objeto resultante.

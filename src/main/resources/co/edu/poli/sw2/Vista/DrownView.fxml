@@ -100,6 +100,7 @@
                 <HBox spacing="8">
                     <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
                     <Button text="Builder" onAction="#construirConBuilder"/>
+                    <Button text="Adapter" onAction="#exportarMisionAJson"/>   
                 </HBox>
 
                 <Separator/>
@@ -172,9 +173,9 @@
             <TextArea fx:id="txtEvidencia"
                       editable="false"
                       wrapText="false"
-                      prefRowCount="8"
-                      prefHeight="160"
-                      promptText="Pulsa cualquier botón de demostración para ver aquí la evidencia."
+                      prefRowCount="10"
+                      prefHeight="200"
+                      promptText="Pulsa Clonar, Builder o Adapter para ver aquí la evidencia."
                       styleClass="area-evidencia"/>
         </VBox>
     </bottom>

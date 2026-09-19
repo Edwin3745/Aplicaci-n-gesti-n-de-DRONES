@@ -5,7 +5,8 @@ import co.edu.poli.sw2.modelo.Sensor;
 import co.edu.poli.sw2.servicios.bridge.ControlDron;
 import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
-
+import co.edu.poli.sw2.modelo.Mision;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -240,7 +241,41 @@ public final class InformeDeIdentidad {
                 .append("    su aporte al final, reflejando el equipo completo.").append(NL)
                 .toString();
     }
+    /**
+     * Redacta la evidencia de que una misión se exportó a JSON mediante el
+     * patrón Adapter.
+     *
+     * @param mision  misión que se adaptó; no se modifica.
+     * @param archivo archivo que el exportador creó.
+     * @param json    contenido que el adaptador generó.
+     * @return informe listo para mostrarse en la interfaz.
+     */
+    public static String describirExportacion(Mision mision, Path archivo, String json) {
+        Path absoluto = archivo.toAbsolutePath();
+        String estado = absoluto.toFile().exists()
+                ? "creado (" + absoluto.toFile().length() + " bytes)"
+                : "NO se encontró en disco";
 
+        return new StringBuilder()
+                .append("=== PATRÓN ADAPTER — Mision exportada a JSON ===").append(NL)
+                .append(NL)
+                .append("Adaptee (sin modificar): ").append(mision).append(NL)
+                .append("Adapter : MisionJsonAdapter  (implementa ExportableJson)").append(NL)
+                .append("Cliente : ExportadorDeArchivos").append(NL)
+                .append(NL)
+                .append("Archivo ").append(estado).append(":").append(NL)
+                .append("  ").append(absoluto).append(NL)
+                .append(NL)
+                .append("Contenido del archivo:").append(NL)
+                .append(json).append(NL)
+                .append(NL)
+                .append("Qué demuestra:").append(NL)
+                .append("  · el exportador recibió un ExportableJson y no sabe que").append(NL)
+                .append("    detrás hay una Mision.").append(NL)
+                .append("  · Mision no fue modificada: el adaptador solo leyó sus").append(NL)
+                .append("    getters públicos y tradujo los datos a JSON.").append(NL)
+                .toString();
+    }
     /**
      * Compone la referencia de un objeto igual que lo haría
      * {@code Object.toString()} de serie: clase, arroba e identidad en
