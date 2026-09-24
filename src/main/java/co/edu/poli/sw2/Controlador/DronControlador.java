@@ -18,6 +18,7 @@ import co.edu.poli.sw2.servicios.dao.GenericDAO;
 import co.edu.poli.sw2.servicios.decorator.BateriaAdicional;
 import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
 import co.edu.poli.sw2.servicios.decorator.DronBase;
+import co.edu.poli.sw2.servicios.facade.VueloFacade;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
 import co.edu.poli.sw2.modelo.Mision;
 import co.edu.poli.sw2.servicios.adapter.ExportableJson;
@@ -44,6 +45,8 @@ public class DronControlador {
 private final DronServicioProxy proxyEliminacion;
     /** Configuraciones base de dron que el usuario puede tomar como punto de partida. */
     private final DronPrototypeManager plantillas = new DronPrototypeManager();
+    /** Fachada que coordina la preparación y ejecución del vuelo. */
+    private final VueloFacade vuelo = new VueloFacade();
      /** Archivo donde la demostración del patrón Adapter escribe el JSON. */
      private static final String RUTA_EXPORTACION = "exportaciones/dron-seleccionado.json";
     /**
@@ -454,11 +457,11 @@ private final DronServicioProxy proxyEliminacion;
              + "Total de sensores individuales: " + raiz.contarSensores() + salto
              + salto
              + "Qué demuestra:" + salto
-             + "  · 'RTD' es una hoja colgada de la raíz, al" + salto
-             + "    mismo nivel que los grupos: el padre los trata igual" + salto
+             + "  · 'Sensor Infrarrojo' (hoja) y 'RTD' (grupo) son hermanos" + salto
+             + "    dentro de 'Sensor Temperatura': el padre los trata igual" + salto
              + "    porque ambos son SensorComponente." + salto
-             + "  · 'Sensor Digital' es hijo de 'Sensor Sonido' y padre de SPI" + salto
-             + "    y UART a la vez: un compuesto puede contener compuestos." + salto
+             + "  · 'RTD' y 'Sensor Digital' son hijos de un grupo y padres de" + salto
+             + "    otros a la vez: un compuesto puede contener compuestos." + salto
              + "  · el recuento no recorre el árbol desde fuera: cada nodo" + salto
              + "    pregunta a sus hijos y suma, y la recursión baja sola" + salto
              + "    hasta las hojas." + salto
@@ -469,11 +472,11 @@ private final DronServicioProxy proxyEliminacion;
      * Construye la jerarquía de sensores que la aplicación muestra como
      * demostración del patrón Composite.
      *
-     * <p>El árbol mezcla deliberadamente los dos tipos de nodo. Fíjese en las
-     * llamadas a {@code agregar()} de la raíz: unas reciben un
-     * {@link SensorCompuesto} y otra una {@link SensorHoja}, y el método es el
-     * mismo en los dos casos. Esa uniformidad es justamente lo que el patrón
-     * aporta.</p>
+     * <p>El árbol mezcla deliberadamente los dos tipos de nodo. Fíjese en
+     * "Sensor Temperatura": con el mismo método {@code agregar()} recibe una
+     * {@link SensorHoja} (Sensor Infrarrojo) y un {@link SensorCompuesto}
+     * (RTD, que a su vez contiene a Sensor Inteligente). Esa uniformidad es
+     * justamente lo que el patrón aporta.</p>
      *
      * @return raíz de la jerarquía de sensores.
      */
@@ -598,5 +601,49 @@ private final DronServicioProxy proxyEliminacion;
 
         return InformeDeIdentidad.describirExportacion(
                 mision, Path.of(RUTA_EXPORTACION), documento.toJson());
+    }
+
+    // ------------------------------------------------------------------
+    // Demostración del patrón Facade
+    // ------------------------------------------------------------------
+
+    /**
+     * Prepara y ejecuta el vuelo del dron seleccionado mediante la fachada.
+     *
+     * <p>Es lo que ejecuta el botón "Preparar vuelo". El controlador no
+     * conoce los modos de control ni los decoradores: hace una única llamada a
+     * {@link VueloFacade}, que coordina los subsistemas en el orden
+     * correcto.</p>
+     *
+     * @param dron       dron seleccionado en la tabla.
+     * @param autonomo   {@code true} para control autónomo.
+     * @param conBateria {@code true} para montar la batería adicional.
+     * @param destino    lugar hacia el que vuela el dron.
+     * @return informe de la operación, listo para el área de evidencia.
+     * @throws OperacionFallidaException si falta el dron o el destino.
+     */
+    public String prepararVuelo(Dron dron, boolean autonomo,
+                                boolean conBateria, String destino) {
+        String resumen;
+        try {
+            resumen = vuelo.prepararVuelo(dron, autonomo, conBateria, destino);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw new OperacionFallidaException(e.getMessage(), e);
+        }
+
+        String salto = System.lineSeparator();
+        return "=== PATRÓN FACADE — preparar vuelo ===" + salto
+             + salto
+             + "Llamada del controlador:" + salto
+             + "  vuelo.prepararVuelo(dron, autonomo, conBateria, destino)" + salto
+             + salto
+             + "Lo que la fachada coordinó por dentro:" + salto
+             + resumen + salto
+             + salto
+             + "Qué demuestra:" + salto
+             + "  · el controlador hizo una sola llamada; no conoce" + salto
+             + "    ControlBasico, ControlAutonomo, DronBase ni BateriaAdicional." + salto
+             + "  · la fachada respetó el orden obligatorio: asignó el" + salto
+             + "    control antes de volar. Un dron sin control no puede volar.";
     }
 }

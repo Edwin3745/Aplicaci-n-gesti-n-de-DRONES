@@ -100,7 +100,7 @@
                 <HBox spacing="8">
                     <Button fx:id="btnClonar" text="Clonar" onAction="#clonarDronSeleccionado"/>
                     <Button text="Builder" onAction="#construirConBuilder"/>
-                    <Button text="Adapter" onAction="#exportarMisionAJson"/>   
+                    <Button text="Adapter" onAction="#exportarMisionAJson"/>
                 </HBox>
 
                 <Separator/>
@@ -134,6 +134,21 @@
                 <Label text="Sensores (Composite):"/>
                 <HBox spacing="8">
                     <Button text="Ver jerarquía" onAction="#mostrarSensores"/>
+                </HBox>
+
+                <Separator/>
+
+                    <!-- Patrón Facade: prepara y ejecuta el vuelo en una sola
+                    acción, con sus propios controles para no depender de las
+                    secciones Bridge y Decorator. -->
+                <Label text="Vuelo completo (Facade):"/>
+                <HBox spacing="8">
+                    <ComboBox fx:id="cmbModoVuelo" prefWidth="120"/>
+                    <TextField fx:id="txtDestinoVuelo" promptText="Destino" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="chkBateriaVuelo" text="Con batería"/>
+                    <Button text="Preparar vuelo" onAction="#prepararVuelo"/>
                 </HBox>
 
             </VBox>

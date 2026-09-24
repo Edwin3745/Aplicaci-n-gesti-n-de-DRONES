@@ -43,6 +43,9 @@ public class DronVista {
     @FXML private ComboBox<String> cmbModoControl;
     @FXML private TextField txtDestino;
     @FXML private TextField txtCapacidadBateria;
+    @FXML private ComboBox<String> cmbModoVuelo;
+    @FXML private TextField txtDestinoVuelo;
+    @FXML private CheckBox chkBateriaVuelo;
 
     @FXML private TableView<Dron> tablaDrones;
     @FXML private TableColumn<Dron, Integer> colId;
@@ -144,12 +147,16 @@ public class DronVista {
     }
 
     /**
-     * Puebla el selector de modo de control con las dos implementaciones del
-     * patrón Bridge disponibles.
+     * Puebla los selectores de modo de control con las dos implementaciones del
+     * patrón Bridge disponibles: el de la sección Bridge y el de la sección
+     * Facade, que es independiente para que la fachada se use sola.
      */
     private void configurarComboModoControl() {
         cmbModoControl.setItems(FXCollections.observableArrayList("Básico", "Autónomo"));
         cmbModoControl.getSelectionModel().selectFirst();
+
+        cmbModoVuelo.setItems(FXCollections.observableArrayList("Básico", "Autónomo"));
+        cmbModoVuelo.getSelectionModel().selectFirst();
     }
 
     private void configurarTabla() {
@@ -446,6 +453,31 @@ public class DronVista {
     public void mostrarSensores() {
         try {
             escribirEvidencia(dronControlador.mostrarJerarquiaDeSensores());
+        } catch (OperacionFallidaException e) {
+            mostrarAlerta(e.getMessage());
+        }
+    }
+
+    /**
+     * Prepara y ejecuta el vuelo del dron elegido con una sola acción.
+     *
+     * <p>Es la demostración del patrón Facade. La sección tiene sus propios
+     * controles —modo, destino y batería— para que el usuario resuelva todo en
+     * un solo lugar y con un único botón, en vez de pasar por las secciones
+     * Bridge y Decorator por separado. El controlador delega todo en
+     * {@code VueloFacade}.</p>
+     */
+    @FXML
+    public void prepararVuelo() {
+        Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
+
+        try {
+            boolean autonomo = "Autónomo".equals(cmbModoVuelo.getValue());
+            escribirEvidencia(dronControlador.prepararVuelo(
+                    seleccionado, autonomo,
+                    chkBateriaVuelo.isSelected(),
+                    txtDestinoVuelo.getText()));
+
         } catch (OperacionFallidaException e) {
             mostrarAlerta(e.getMessage());
         }
