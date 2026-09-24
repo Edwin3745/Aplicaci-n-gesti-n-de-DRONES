@@ -254,27 +254,36 @@ public class DronVista {
      * Elimina el dron elegido en la tabla, previa confirmación del usuario.
      */
     @FXML
-    public void eliminarDron() {
+     public void eliminarDron() {
         Dron seleccionado = tablaDrones.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
             mostrarAlerta("Selecciona un dron de la tabla para eliminar.");
             return;
         }
 
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar eliminación");
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText("¿Eliminar el dron " + seleccionado.getSerial() + "?");
+        // Cuadro de diálogo con un campo de contraseña (oculta lo que se escribe)
+        Dialog<String> dialogo = new Dialog<>();
+        dialogo.setTitle("Confirmar eliminación");
+        dialogo.setHeaderText("¿Eliminar el dron " + seleccionado.getSerial() + "?\n"
+                + "Ingresa la contraseña para confirmar.");
 
-        confirmacion.showAndWait().ifPresent(respuesta -> {
-            if (respuesta == ButtonType.OK) {
-                try {
-                    dronControlador.eliminarDron(seleccionado.getId());
-                    actualizarTabla();
-                    limpiarFormulario();
-                } catch (OperacionFallidaException e) {
-                    mostrarAlerta(e.getMessage());
-                }
+        PasswordField campoContrasena = new PasswordField();
+        campoContrasena.setPromptText("Contraseña");
+        dialogo.getDialogPane().setContent(campoContrasena);
+        dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // Si pulsa Aceptar, el resultado es lo escrito; si cancela, es null
+        dialogo.setResultConverter(boton ->
+                boton == ButtonType.OK ? campoContrasena.getText() : null);
+
+        dialogo.showAndWait().ifPresent(contrasena -> {
+            try {
+                dronControlador.eliminarDron(seleccionado.getId(), contrasena);
+                actualizarTabla();
+                limpiarFormulario();
+            } catch (OperacionFallidaException e) {
+                // Aquí llega "Contraseña no válida. El dron no fue eliminado."
+                mostrarAlerta(e.getMessage());
             }
         });
     }

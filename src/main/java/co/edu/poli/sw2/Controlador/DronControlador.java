@@ -1,5 +1,6 @@
 package co.edu.poli.sw2.Controlador;
-
+import co.edu.poli.sw2.servicios.proxy.DronServicioProxy;
+import co.edu.poli.sw2.servicios.proxy.DronServicioReal;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.DemostracionPatron;
@@ -19,11 +20,12 @@ import co.edu.poli.sw2.servicios.decorator.ComponenteDron;
 import co.edu.poli.sw2.servicios.decorator.DronBase;
 import co.edu.poli.sw2.servicios.prototype.DronPrototypeManager;
 import co.edu.poli.sw2.modelo.Mision;
-import co.edu.poli.sw2.servicios.ExportadorDeArchivos;
 import co.edu.poli.sw2.servicios.adapter.ExportableJson;
+import co.edu.poli.sw2.servicios.adapter.ExportadorDeArchivos;
 import co.edu.poli.sw2.servicios.adapter.MisionJsonAdapter;
 import java.nio.file.Path;
 import java.util.Date;
+
 
 import java.util.List;
 import java.util.Set;
@@ -39,7 +41,7 @@ import java.util.Set;
 public class DronControlador {
 
     private final GenericDAO<Dron, Integer> dronDAO;
-
+private final DronServicioProxy proxyEliminacion;
     /** Configuraciones base de dron que el usuario puede tomar como punto de partida. */
     private final DronPrototypeManager plantillas = new DronPrototypeManager();
      /** Archivo donde la demostración del patrón Adapter escribe el JSON. */
@@ -60,9 +62,10 @@ public class DronControlador {
      * @param dronDAO implementación de acceso a datos a utilizar.
      */
     public DronControlador(GenericDAO<Dron, Integer> dronDAO) {
-        this.dronDAO = dronDAO;
-        registrarPlantillasBase();
-    }
+    this.dronDAO = dronDAO;
+    this.proxyEliminacion = new DronServicioProxy(new DronServicioReal(dronDAO));
+    registrarPlantillasBase();
+}
 
     // ------------------------------------------------------------------
     // Configuraciones base (patrón Prototype)
@@ -294,13 +297,18 @@ public class DronControlador {
      * @return {@code true} si se eliminó algún registro.
      * @throws OperacionFallidaException si la operación no puede completarse.
      */
-    public boolean eliminarDron(int id) {
-        try {
-            return dronDAO.eliminar(id);
-        } catch (ServicioException e) {
-            throw traducir(e, "eliminar", String.valueOf(id));
-        }
+   public boolean eliminarDron(int id, String contrasena) {
+    proxyEliminacion.setContrasenaIngresada(contrasena);
+    if (!proxyEliminacion.contrasenaEsCorrecta()) {
+        proxyEliminacion.setContrasenaIngresada(null);
+        throw new OperacionFallidaException("Contraseña no válida. El dron no fue eliminado.");
     }
+    try {
+        return proxyEliminacion.eliminar(id);
+    } catch (ServicioException e) {
+        throw traducir(e, "eliminar", String.valueOf(id));
+    }
+}
 
     /**
      * Busca un dron por su identificador.

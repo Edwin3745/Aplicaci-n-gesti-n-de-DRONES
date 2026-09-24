@@ -3,6 +3,8 @@ package co.edu.poli.sw2;
 import co.edu.poli.sw2.Controlador.DronControlador;
 import co.edu.poli.sw2.Controlador.OperacionFallidaException;
 import co.edu.poli.sw2.modelo.TipoDron;
+import co.edu.poli.sw2.servicios.proxy.DronServicioProxy;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +67,7 @@ class ManejoErroresTest {
         controlador.listarDrones().stream()
                 .filter(d -> d.getSerial().equals("DUP-TEST"))
                 .findFirst()
-                .ifPresent(d -> controlador.eliminarDron(d.getId()));
+                .ifPresent(d -> controlador.eliminarDron(d.getId(), DronServicioProxy.CONTRASENA_POR_DEFECTO));
     }
 
     @Test
@@ -75,9 +77,9 @@ class ManejoErroresTest {
                         "Modelo OK", "Fab Y", 25.0, 35.0, false));
 
         // Limpieza
-        controlador.listarDrones().stream()
+         controlador.listarDrones().stream()
                 .filter(d -> d.getSerial().equals("OK-TEST"))
                 .findFirst()
-                .ifPresent(d -> controlador.eliminarDron(d.getId()));
+                .ifPresent(d -> controlador.eliminarDron(d.getId(), DronServicioProxy.CONTRASENA_POR_DEFECTO));
     }
 }

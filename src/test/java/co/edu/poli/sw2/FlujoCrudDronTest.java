@@ -5,6 +5,7 @@ import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Dron;
 import co.edu.poli.sw2.modelo.TipoDron;
 import co.edu.poli.sw2.servicios.dao.ConexionBD;
+import co.edu.poli.sw2.servicios.proxy.DronServicioProxy;
 
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +60,7 @@ class FlujoCrudDronTest {
 
             // --- Bajas encadenadas ---
             for (Dron dron : buscarDeLaPrueba(controlador)) {
-                assertTrue(controlador.eliminarDron(dron.getId()),
+                assertTrue(controlador.eliminarDron(dron.getId(), DronServicioProxy.CONTRASENA_POR_DEFECTO),
                         "Cada baja consecutiva debe completarse");
             }
 
@@ -107,6 +108,6 @@ class FlujoCrudDronTest {
      */
     private void limpiar(DronControlador controlador) {
         buscarDeLaPrueba(controlador)
-                .forEach(dron -> controlador.eliminarDron(dron.getId()));
+                .forEach(dron -> controlador.eliminarDron(dron.getId(), DronServicioProxy.CONTRASENA_POR_DEFECTO));
     }
 }

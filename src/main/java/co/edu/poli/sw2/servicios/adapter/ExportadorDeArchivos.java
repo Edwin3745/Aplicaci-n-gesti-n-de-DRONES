@@ -1,6 +1,4 @@
-package co.edu.poli.sw2.servicios;
-
-import co.edu.poli.sw2.servicios.adapter.ExportableJson;
+package co.edu.poli.sw2.servicios.adapter;
 
 /**
  * Exporta a archivo cualquier objeto que sepa presentarse como JSON.
