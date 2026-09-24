@@ -454,7 +454,7 @@ private final DronServicioProxy proxyEliminacion;
              + "Total de sensores individuales: " + raiz.contarSensores() + salto
              + salto
              + "Qué demuestra:" + salto
-             + "  · 'Sensor Inteligente' es una hoja colgada de la raíz, al" + salto
+             + "  · 'RTD' es una hoja colgada de la raíz, al" + salto
              + "    mismo nivel que los grupos: el padre los trata igual" + salto
              + "    porque ambos son SensorComponente." + salto
              + "  · 'Sensor Digital' es hijo de 'Sensor Sonido' y padre de SPI" + salto
@@ -477,12 +477,15 @@ private final DronServicioProxy proxyEliminacion;
      *
      * @return raíz de la jerarquía de sensores.
      */
-    private SensorComponente construirArbolDeSensores() {
+     private SensorComponente construirArbolDeSensores() {
         SensorCompuesto general = new SensorCompuesto("Sensor General");
+
+        SensorCompuesto rtd = new SensorCompuesto("RTD");
+        rtd.agregar(new SensorHoja("Sensor Inteligente"));
 
         SensorCompuesto temperatura = new SensorCompuesto("Sensor Temperatura");
         temperatura.agregar(new SensorHoja("Sensor Infrarrojo"));
-        temperatura.agregar(new SensorHoja("RTD"));
+        temperatura.agregar(rtd);
 
         SensorCompuesto camara = new SensorCompuesto("Sensor Cámara");
         camara.agregar(new SensorHoja("Sensor CMOS"));
@@ -499,7 +502,6 @@ private final DronServicioProxy proxyEliminacion;
         general.agregar(temperatura);
         general.agregar(camara);
         general.agregar(sonido);
-        general.agregar(new SensorHoja("Sensor Inteligente"));
 
         return general;
     }

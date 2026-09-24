@@ -168,12 +168,12 @@ class CompositeSensoresTest {
         assertEquals(2, general.getHijos().size());
     }
 
-    @Test
-    void arbolCompleto_debeContarOchoSensores() {
+        @Test
+    void arbolCompleto_debeContarSieteSensores() {
         SensorComponente raiz = construirArbolDeLaEntrega();
 
-        assertEquals(8, raiz.contarSensores(),
-                "El árbol de la especificación tiene ocho sensores individuales");
+        assertEquals(7, raiz.contarSensores(),
+                "El árbol de la especificación tiene siete sensores individuales");
     }
 
     @Test
@@ -212,12 +212,15 @@ class CompositeSensoresTest {
      *
      * @return raíz del árbol de sensores.
      */
-    private SensorComponente construirArbolDeLaEntrega() {
+        private SensorComponente construirArbolDeLaEntrega() {
         SensorCompuesto general = new SensorCompuesto("Sensor General");
+
+        SensorCompuesto rtd = new SensorCompuesto("RTD");
+        rtd.agregar(new SensorHoja("Sensor Inteligente"));
 
         SensorCompuesto temperatura = new SensorCompuesto("Sensor Temperatura");
         temperatura.agregar(new SensorHoja("Sensor Infrarrojo"));
-        temperatura.agregar(new SensorHoja("RTD"));
+        temperatura.agregar(rtd);
 
         SensorCompuesto camara = new SensorCompuesto("Sensor Cámara");
         camara.agregar(new SensorHoja("Sensor CMOS"));
@@ -234,7 +237,6 @@ class CompositeSensoresTest {
         general.agregar(temperatura);
         general.agregar(camara);
         general.agregar(sonido);
-        general.agregar(new SensorHoja("Sensor Inteligente"));
 
         return general;
     }
